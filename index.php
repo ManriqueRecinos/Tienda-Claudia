@@ -26,5 +26,19 @@ if(isset($_GET['views'])){
 <body>
     <!-- Footers -->
     <?php include './app/views/inc/footers.php'; ?>
+    <h1 class="text-3xl font-bold underline">Hello world!</h1>
+
+
+
+    
+
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: 'Do you want to continue?',
+            icon: 'error',
+            confirmButtonText: 'Cool'
+        })
+    </script> 
 </body>
 </html>
