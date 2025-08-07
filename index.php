@@ -5,6 +5,8 @@ require_once './Config/app.php';
 require_once './autoload.php';
 require_once './app/views/inc/session_start.php';
 
+use app\controllers\viewsController;
+
 // Configuraciones de la base de datos y el core
 require_once './Config/Conexion.php';
 require_once './Config/Core.php';
@@ -24,21 +26,15 @@ if(isset($_GET['views'])){
     <?php include './app/views/inc/headers.php'; ?>
 </head>
 <body>
+        <?php
+        $viewsController = new viewsController();
+        $vista = $viewsController->obtenerVistasController($url[0]);
+        require_once $vista;
+    ?>
+
     <!-- Footers -->
     <?php include './app/views/inc/footers.php'; ?>
-    <h1 class="text-3xl font-bold underline">Hello world!</h1>
-
-
-
     
 
-    <script>
-        Swal.fire({
-            title: 'Error!',
-            text: 'Do you want to continue?',
-            icon: 'error',
-            confirmButtonText: 'Cool'
-        })
-    </script> 
 </body>
 </html>
