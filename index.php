@@ -22,6 +22,9 @@ if(isset($_GET['views'])){
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="<?php echo APP_URL; ?>/public/img/logo.png" type="image/x-icon">
+    
     <!-- Headers -->
     <?php include './app/views/inc/headers.php'; ?>
 </head>
