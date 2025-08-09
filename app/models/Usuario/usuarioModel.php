@@ -139,4 +139,47 @@ class usuarioModel extends \Core {
             'filas_afectadas' => $this->get_filas_afectadas(),
         ];
     }
+
+    // Cambiar estado de un usuario por id (acción: cambiar_estado)
+    // Retorna: success, message, filas_afectadas, error
+    public function cambiarEstado(int $id, $estado): array {
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) {
+            return [ 'success' => false, 'message' => 'Sin conexión a la BD', 'filas_afectadas' => 0 ];
+        }
+        $id = (int)$id;
+
+        // Normalizar estado a boolean y usar TRUE/FALSE para PostgreSQL
+        $bool = filter_var($estado, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($bool === null) {
+            $bool = ((string)$estado === '1');
+        }
+        $sqlBool = $bool ? 'TRUE' : 'FALSE';
+
+        try {
+            // UPDATE atomico que retorna el usuario afectado
+            $sql = "UPDATE usuarios SET estado = $sqlBool, cambio_estado = NOW() WHERE id_usuario = $id RETURNING usuario";
+            $stmt = $pdo->query($sql);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $affected = (int)$stmt->rowCount();
+            if ($result && $affected > 0) {
+                return [
+                    'success' => true,
+                    'message' => 'Estado del usuario ' . ($result['usuario'] ?? (string)$id) . ' cambiado correctamente',
+                    'filas_afectadas' => $affected,
+                ];
+            }
+            return [
+                'success' => false,
+                'message' => 'Usuario no encontrado',
+                'filas_afectadas' => 0,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al cambiar estado',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }    
 }

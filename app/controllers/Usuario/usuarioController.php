@@ -10,6 +10,7 @@ class usuarioController extends usuarioModel {
             ?? ($_GET['action'] ?? ($_POST['action'] ?? ''));
 
         switch ($action) {
+
             // Acción: obtener_usuarios -> Lista todos los usuarios
             case 'obtener_usuarios':
                 $data = $this->getAllUsers();
@@ -18,6 +19,7 @@ class usuarioController extends usuarioModel {
                 }
                 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                 exit;
+
             // Acción: obtener_usuario -> Obtiene un usuario por id
             case 'obtener_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
@@ -27,6 +29,7 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit;
+                    
             // Acción: actualizar_usuario -> Actualiza un usuario por id
             case 'actualizar_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
@@ -36,6 +39,7 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit;
+
             // Acción: eliminar_usuario -> Elimina un usuario por id
             case 'eliminar_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
@@ -44,7 +48,20 @@ class usuarioController extends usuarioModel {
                         header('Content-Type: application/json; charset=utf-8');
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                    exit;                    
+                    exit;  
+            
+            // Acción: cambiar_estado -> Cambia el estado de un usuario por id
+            case 'cambiar_estado':
+                    $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
+                    $estado = $request['estado'] ?? ($_GET['estado'] ?? ($_POST['estado'] ?? ''));
+                    $data = $this->cambiarEstado($id, $estado);
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json; charset=utf-8');
+                    }
+                    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit; 
+                    
+            // Acción: default -> Acción no válida
             default:
                 if (!headers_sent()) {
                     header('Content-Type: application/json; charset=utf-8');
