@@ -1,160 +1,215 @@
 <?php
 namespace app\models\Usuario;
+require_once __DIR__ . '/../../../Config/Core.php';
+
+// ------------------------------------------------------------
+// Modelo de Usuarios: CRUD de usuarios
+// - getAllUsers(): listar todos con mensaje y total
+// - getUserById(): obtener uno con mensaje y datos
+// - updateUser(): actualizar campos y devolver estado
+// - deleteUser(): eliminar y reportar usuario eliminado
+// ------------------------------------------------------------
 
 class usuarioModel extends \Core {
-    
-    // Obtener todos los usuarios
-    public function getAllUsers() {
-        try {
-            $sql = "SELECT id_usuario, nombres, apellidos, usuario, rol, fecha_creacion FROM usuarios ORDER BY fecha_creacion DESC";
-            $stmt = $this->conectar()->prepare($sql);
-            $stmt->execute();
+
+    // Obtener todos los usuarios (acción: obtener_usuarios)
+    // Retorna: success, message, datos[], total
+    public function getAllUsers(): ?array {
+        $sql = "SELECT us.id_usuario,
+                    us.nombres,
+                    us.apellidos,
+                    us.usuario,
+                    us.contrasenia,
+                    us.fecha_creacion,
+                    us.id_rol,
+                    rol.nom_rol
+                FROM usuarios us
+                INNER JOIN roles rol ON us.id_rol = rol.id_rol";
+        $rows = $this->get_all($sql) ?? [];
+        $total = count($rows);
+        return [
+            'success' => true,
+            'message' => $total > 0 ? ('Se obtuvieron ' . $total . ' usuarios') : 'No hay usuarios',
+            'datos' => $rows,
+            'total' => $total,
+        ];
+    }
+
+    // Obtener un usuario por id (acción: obtener_usuario)
+    // Retorna: success, message (con nombre completo), datos|null
+    public function getUserById(int $id): ?array {
+        $id = (int)$id;
+        $sql = "SELECT us.id_usuario,
+                    us.nombres,
+                    us.apellidos,
+                    us.usuario,
+                    us.contrasenia,
+                    us.fecha_creacion,
+                    us.id_rol,
+                    rol.nom_rol
+                FROM usuarios us
+                INNER JOIN roles rol ON us.id_rol = rol.id_rol
+                WHERE us.id_usuario = $id";
+        // Obtener una sola fila asociativa
+        $row = $this->getOne($sql);
+        if ($row) {
+            $fullName = trim(($row['nombres'] ?? '') . ' ' . ($row['apellidos'] ?? ''));
+            $userRef = $row['usuario'] ?? '';
+            $label = $fullName !== '' ? "$fullName ($userRef)" : $userRef;
             return [
                 'success' => true,
-                'data' => $stmt->fetchAll(\PDO::FETCH_ASSOC)
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Error al obtener usuarios: ' . $e->getMessage()
+                'message' => 'Usuario ' . $label . ' obtenido correctamente',
+                'datos' => $row,
             ];
         }
+        return [
+            'success' => false,
+            'message' => 'Usuario no encontrado',
+            'datos' => null,
+        ];
     }
-    
-    // Obtener usuario por ID
-    public function getUserById($id) {
-        try {
-            $sql = "SELECT id_usuario, nombres, apellidos, usuario, rol, fecha_creacion FROM usuarios WHERE id_usuario = ?";
-            $stmt = $this->conectar()->prepare($sql);
-            $stmt->execute([$id]);
-            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
-            
+
+    // Actualizar un usuario por id (acción: actualizar_usuario)
+    // Retorna: success, message, filas_afectadas
+    public function updateUser(int $id, array $data): array {
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) {
+            return [ 'success' => false, 'message' => 'Sin conexión a la BD' ];
+        }
+        $id = (int)$id;
+        $nombres = $data['nombres'] ?? '';
+        $apellidos = $data['apellidos'] ?? '';
+        $usuario = $data['usuario'] ?? '';
+        
+        // Verificar si ya existe un usuario con el mismo nombre de usuario
+        $checkUsuarioSql = "SELECT id_usuario FROM usuarios WHERE usuario = ? AND id_usuario != ?";
+        $stmtUsuario = $pdo->prepare($checkUsuarioSql);
+        $stmtUsuario->execute([$usuario, $id]);
+        
+        if ($stmtUsuario->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con el mismo nombre de usuario',
+                'filas_afectadas' => 0
+            ];
+        }
+        
+        // Verificar si ya existe un usuario con la misma combinación de nombres y apellidos
+        $checkNombresApellidosSql = "SELECT id_usuario FROM usuarios WHERE nombres = ? AND apellidos = ? AND id_usuario != ?";
+        $stmtNombresApellidos = $pdo->prepare($checkNombresApellidosSql);
+        $stmtNombresApellidos->execute([$nombres, $apellidos, $id]);
+        
+        if ($stmtNombresApellidos->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con el mismo nombre y apellidos',
+                'filas_afectadas' => 0
+            ];
+        }
+        
+        $nombresQuoted = $pdo->quote($nombres);
+        $apellidosQuoted = $pdo->quote($apellidos);
+        $usuarioQuoted = $pdo->quote($usuario);
+        $contrasenia = $pdo->quote($data['contrasenia'] ?? '');
+        $id_rol = (int)($data['id_rol'] ?? 0);
+
+        $sql = "UPDATE usuarios SET 
+                    nombres = $nombresQuoted,
+                    apellidos = $apellidosQuoted,
+                    usuario = $usuarioQuoted,
+                    contrasenia = $contrasenia,
+                    ult_modificacion = NOW(),
+                    id_rol = $id_rol
+                WHERE id_usuario = $id";
+
+        $ok = $this->ejecutar($sql);
+        if ($ok) {
             return [
                 'success' => true,
-                'data' => $user ?: null
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Error al obtener usuario: ' . $e->getMessage()
+                'message' => 'Usuario ' . $usuario . ' actualizado correctamente',
+                'filas_afectadas' => $this->get_filas_afectadas(),
             ];
         }
+        return [
+            'success' => false,
+            'message' => 'No hubo cambios',
+            'filas_afectadas' => $this->get_filas_afectadas(),
+        ];
     }
-    
-    // Crear nuevo usuario
-    public function createUser($data) {
-        try {
-            $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia, rol, fecha_creacion) VALUES (?, ?, ?, ?, ?, NOW())";
-            $stmt = $this->conectar()->prepare($sql);
-            
-            $hashedPassword = password_hash($data['contrasenia'], PASSWORD_BCRYPT);
-            $rol = !empty($data['rol']) ? $data['rol'] : null;
-            
-            $stmt->execute([
-                $data['nombres'],
-                $data['apellidos'], 
-                $data['usuario'],
-                $hashedPassword,
-                $rol
-            ]);
-            
+
+    // Eliminar un usuario por id (acción: eliminar_usuario)
+    // Retorna: success, message (con nombre completo), filas_afectadas
+    public function deleteUser(int $id): array {
+        $id = (int)$id;
+
+        // Obtener datos del usuario antes de eliminar para el mensaje
+        $row = $this->getOne("SELECT usuario, nombres, apellidos FROM usuarios WHERE id_usuario = $id");
+        if (!$row) {
+            return [
+                'success' => false,
+                'message' => 'Usuario no encontrado',
+                'filas_afectadas' => 0,
+            ];
+        }
+
+        $ok = $this->ejecutar("DELETE FROM usuarios WHERE id_usuario = $id");
+        if ($ok) {
+            $fullName = trim(($row['nombres'] ?? '') . ' ' . ($row['apellidos'] ?? ''));
+            $userRef = $row['usuario'] ?? '';
+            $label = $fullName !== '' ? "$fullName ($userRef)" : $userRef;
             return [
                 'success' => true,
-                'message' => 'Usuario creado exitosamente',
-                'id' => $this->conectar()->lastInsertId()
+                'message' => 'Usuario ' . $label . ' eliminado correctamente',
+                'filas_afectadas' => $this->get_filas_afectadas(),
             ];
-        } catch (\Exception $e) {
+        }
+        return [
+            'success' => false,
+            'message' => 'No hubo cambios',
+            'filas_afectadas' => $this->get_filas_afectadas(),
+        ];
+    }
+
+    // Cambiar estado de un usuario por id (acción: cambiar_estado)
+    // Retorna: success, message, filas_afectadas, error
+    public function cambiarEstado(int $id, $estado): array {
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) {
+            return [ 'success' => false, 'message' => 'Sin conexión a la BD', 'filas_afectadas' => 0 ];
+        }
+        $id = (int)$id;
+
+        // Normalizar estado a boolean y usar TRUE/FALSE para PostgreSQL
+        $bool = filter_var($estado, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($bool === null) {
+            $bool = ((string)$estado === '1');
+        }
+        $sqlBool = $bool ? 'TRUE' : 'FALSE';
+
+        try {
+            // UPDATE atomico que retorna el usuario afectado
+            $sql = "UPDATE usuarios SET estado = $sqlBool, cambio_estado = NOW() WHERE id_usuario = $id RETURNING usuario";
+            $stmt = $pdo->query($sql);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $affected = (int)$stmt->rowCount();
+            if ($result && $affected > 0) {
+                return [
+                    'success' => true,
+                    'message' => 'Estado del usuario ' . ($result['usuario'] ?? (string)$id) . ' cambiado correctamente',
+                    'filas_afectadas' => $affected,
+                ];
+            }
             return [
                 'success' => false,
-                'message' => 'Error al crear usuario: ' . $e->getMessage()
+                'message' => 'Usuario no encontrado',
+                'filas_afectadas' => 0,
             ];
-        }
-    }
-    
-    // Actualizar usuario
-    public function updateUser($id, $data) {
-        try {
-            $fields = [];
-            $values = [];
-            
-            if (!empty($data['nombres'])) {
-                $fields[] = "nombres = ?";
-                $values[] = $data['nombres'];
-            }
-            if (!empty($data['apellidos'])) {
-                $fields[] = "apellidos = ?";
-                $values[] = $data['apellidos'];
-            }
-            if (!empty($data['usuario'])) {
-                $fields[] = "usuario = ?";
-                $values[] = $data['usuario'];
-            }
-            if (!empty($data['contrasenia'])) {
-                $fields[] = "contrasenia = ?";
-                $values[] = password_hash($data['contrasenia'], PASSWORD_BCRYPT);
-            }
-            if (isset($data['rol'])) {
-                $fields[] = "rol = ?";
-                $values[] = !empty($data['rol']) ? $data['rol'] : null;
-            }
-            
-            if (empty($fields)) {
-                return ['success' => false, 'message' => 'No hay campos para actualizar'];
-            }
-            
-            $values[] = $id;
-            $sql = "UPDATE usuarios SET " . implode(', ', $fields) . " WHERE id_usuario = ?";
-            $stmt = $this->conectar()->prepare($sql);
-            $stmt->execute($values);
-            
-            return [
-                'success' => true,
-                'message' => 'Usuario actualizado exitosamente'
-            ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'message' => 'Error al actualizar usuario: ' . $e->getMessage()
+                'message' => 'Error al cambiar estado',
+                'error' => $e->getMessage(),
             ];
         }
-    }
-    
-    // Eliminar usuario
-    public function deleteUser($id) {
-        try {
-            $sql = "DELETE FROM usuarios WHERE id_usuario = ?";
-            $stmt = $this->conectar()->prepare($sql);
-            $stmt->execute([$id]);
-            
-            return [
-                'success' => true,
-                'message' => 'Usuario eliminado exitosamente'
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Error al eliminar usuario: ' . $e->getMessage()
-            ];
-        }
-    }
-    
-    // Verificar si usuario existe
-    public function userExists($usuario, $excludeId = null) {
-        try {
-            $sql = "SELECT id_usuario FROM usuarios WHERE usuario = ?";
-            $params = [$usuario];
-            
-            if ($excludeId) {
-                $sql .= " AND id_usuario != ?";
-                $params[] = $excludeId;
-            }
-            
-            $stmt = $this->conectar()->prepare($sql);
-            $stmt->execute($params);
-            
-            return $stmt->fetch() !== false;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
+    }    
 }

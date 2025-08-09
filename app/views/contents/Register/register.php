@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
         <div class="text-center mt-4">
-            <a href="<?php echo APP_URL; ?>" class="text-sm text-gray-600 hover:text-gray-900">Volver al inicio</a>
+            <a href="<?php echo APP_URL; ?>" class="text-sm text-blue-600 hover:text-blue-800 cursor-pointer hover:underline transition duration-300 ease-in-out">Navegar sin iniciar sesión</a>
         </div>
     </div>
 </div>
