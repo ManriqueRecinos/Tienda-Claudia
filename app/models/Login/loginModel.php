@@ -1,5 +1,6 @@
 <?php
 namespace app\models\Login;
+require_once __DIR__ . '/../../../Config/Core.php';
 
 class loginModel extends \Core
 {
@@ -45,11 +46,11 @@ class loginModel extends \Core
         $hash = password_hash($contrasenia, PASSWORD_BCRYPT);
         try {
             $ok = $this->insertUser([
-                ':n' => $nombres,
-                ':a' => $apellidos,
-                ':u' => $usuario,
-                ':c' => $hash,
-                ':r' => $rol,
+                'nombres' => $nombres,
+                'apellidos' => $apellidos,
+                'usuario' => $usuario,
+                'contrasenia' => $hash,
+                'id_rol' => $rol,
             ]);
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => 'No se pudo registrar el usuario: ' . $e->getMessage()];
@@ -64,7 +65,11 @@ class loginModel extends \Core
 
     private function getUserByUsername(string $usuario): ?array
     {
-        $row = $this->getOne("SELECT * FROM usuarios WHERE usuario = :u", [':u' => $usuario]);
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) return null;
+        $u = $pdo->quote($usuario);
+        $sql = "SELECT * FROM usuarios WHERE usuario = $u";
+        $row = $this->getOne($sql);
         return $row ?: null;
     }
 
@@ -75,15 +80,21 @@ class loginModel extends \Core
 
     private function insertUser(array $params): bool
     {
-        // Si rol es NULL, omitimos la columna para usar el DEFAULT NULL del esquema
-        $hasRole = array_key_exists(':r', $params) && $params[':r'] !== null;
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) return false;
+        $n = $pdo->quote($params['nombres'] ?? '');
+        $a = $pdo->quote($params['apellidos'] ?? '');
+        $u = $pdo->quote($params['usuario'] ?? '');
+        $c = $pdo->quote($params['contrasenia'] ?? '');
+        $rol = $params['id_rol'] ?? null;
+        $hasRole = $rol !== null && $rol !== '' && $rol !== 'null';
         if ($hasRole) {
-            $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia,fecha_creacion,rol) VALUES (:n, :a, :u, :c, NOW(), :r)";
+            $rolVal = (int)$rol;
+            $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia, fecha_creacion, id_rol) VALUES ($n, $a, $u, $c, NOW(), $rolVal)";
         } else {
-            $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia,fecha_creacion) VALUES (:n, :a, :u, :c, NOW())";
-            unset($params[':r']);
+            $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia, fecha_creacion) VALUES ($n, $a, $u, $c, NOW())";
         }
-        return $this->ejecutar($sql, $params);
+        return $this->ejecutar($sql);
     }
 }
 ?>
