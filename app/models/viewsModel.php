@@ -40,7 +40,7 @@ class viewsModel{
                 $currentView = "Usuarios";
             }
             elseif ($vista == "ventas") {
-                $viewContent = "./app/views/contents/ventas.php";
+                $viewContent = "./app/views/contents/Ventas/ventas.php";
                 $currentView = "Ventas";
             }
             else {
