@@ -80,12 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Iniciar sesión
                 </button>
             </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">¿No tienes una cuenta? 
+                    <a href="<?php echo APP_URL; ?>?views=register" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate</a>
+                </p>
+            </div>
         </form>
-        <div class="text-center">
-            <p class="text-sm text-gray-600">¿No tienes una cuenta? 
-                <a href="<?php echo APP_URL; ?>?views=register" class="font-medium text-indigo-600 hover:text-indigo-500">Regístrate</a>
-            </p>
-            <a href="<?php echo APP_URL; ?>" class="text-sm text-gray-600 hover:text-gray-900">Volver al inicio</a>
+        <div class="text-center mt-4">
+            <a href="<?php echo APP_URL; ?>" class="text-sm text-blue-600 hover:text-blue-800 cursor-pointer hover:underline transition duration-300 ease-in-out">Navegar sin iniciar sesión</a>
         </div>
     </div>
 </div>

@@ -82,12 +82,12 @@ $user = [
   <!-- Contenido principal -->
   <main class="flex-1">
     <!-- Topbar -->
-    <div class="h-16 bg-white border-b flex items-center justify-between px-4">
+    <div class="h-16 bg-slate-700 flex items-center justify-between px-4">
       <div class="flex items-center space-x-3">
-        <button id="mobile-menu-btn" class="md:hidden inline-flex items-center justify-center p-2 rounded hover:bg-gray-100" aria-label="Menu">
+        <button id="mobile-menu-btn" class="md:hidden inline-flex items-center justify-center p-2 rounded hover:bg-slate-700" aria-label="Menu">
           <i class="fa fa-bars"></i>
         </button>
-        <h1 id="page-title" class="text-lg font-semibold"><?php echo ucfirst($GLOBALS['currentView'] ?? 'Panel'); ?></h1>
+        <h1 id="page-title" class="text-lg font-semibold text-white"><?php echo ucfirst($GLOBALS['currentView'] ?? 'Panel'); ?></h1>
       </div>
       <div class="flex items-center space-x-3">
         <!-- Botón de login removido - ahora está en el sidebar -->
