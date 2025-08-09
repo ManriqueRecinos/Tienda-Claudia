@@ -24,12 +24,24 @@ class viewsModel{
                 $contenido = "./app/views/contents/Error/404.php";
             }
         } 
-        // Caso especial para login o index
-        elseif($vista=="login" || $vista=="index"){
+        // Caso especial para login
+        elseif($vista=="login"){
             if(is_file("./app/views/contents/Login/login.php")){
                 $contenido = "./app/views/contents/Login/login.php";
             } else {
                 $contenido = "./app/views/contents/login.php";
+            }
+        }
+        // Caso especial para index autenticado
+        elseif($vista=="index"){
+            if(is_file("./app/views/contents/index.php")){
+                $contenido = "./app/views/contents/index.php";
+            } else if(is_file("./app/views/contents/Index/index.php")){
+                $contenido = "./app/views/contents/Index/index.php";
+            } else if(is_file("./app/views/contents/Dashboard/dashboard.php")){
+                $contenido = "./app/views/contents/Dashboard/dashboard.php";
+            } else {
+                $contenido = "./app/views/contents/Error/404.php";
             }
         }
         // Caso especial para register

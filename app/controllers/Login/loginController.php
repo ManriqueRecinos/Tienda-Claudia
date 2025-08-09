@@ -29,10 +29,13 @@ class loginController extends loginModel
 
     private function handleLogin(array $post): array
     {
+        if (!isset($_SESSION)) { session_start(); }
         $usuario     = $post['usuario'] ?? '';
         $contrasenia = $post['contrasenia'] ?? '';
         $resp = $this->login($usuario, $contrasenia);
         if ($resp['success']) {
+            // Asegurar sesión segura
+            if (session_status() === PHP_SESSION_ACTIVE) { session_regenerate_id(true); }
             $_SESSION['id_usuario'] = $resp['user']['id_usuario'] ?? null;
             $_SESSION['usuario']    = $resp['user']['usuario'] ?? null;
             $_SESSION['nombres']    = $resp['user']['nombres'] ?? null;

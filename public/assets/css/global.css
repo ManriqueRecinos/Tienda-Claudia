@@ -1,0 +1,21 @@
+:root{
+  --color-primary:#4f46e5; /* Indigo-600 */
+  --color-primary-hover:#4338ca; /* Indigo-700 */
+  --color-accent:#22c55e; /* Green-500 */
+  --color-danger:#dc2626; /* Red-600 */
+  --bg:#f3f4f6; /* Gray-100 */
+  --text:#111827; /* Gray-900 */
+}
+
+body{ background:var(--bg); color:var(--text); }
+.btn-primary{ background:var(--color-primary); color:#fff; }
+.btn-primary:hover{ background:var(--color-primary-hover); }
+.btn-danger{ background:var(--color-danger); color:#fff; }
+
+/* Asegurar visibilidad del icono de ojo en los inputs de contraseña */
+.toggle-password i {
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* Utilities */
+.hidden{ display:none; }
