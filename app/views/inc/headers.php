@@ -23,3 +23,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+
+<!-- CSS por vista -->
+<?php $view = $_GET['views'] ?? ''; ?>
+<?php if ($view === 'usuarios'): ?>
+  <link rel="stylesheet" href="<?php echo APP_URL; ?>/app/views/contents/Usuarios/css/usuarios.css">
+<?php endif; ?>

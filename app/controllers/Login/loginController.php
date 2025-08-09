@@ -1,7 +1,6 @@
 <?php
 namespace app\controllers\Login;
-
-use app\models\loginModel;
+use app\models\Login\loginModel;
 
 class loginController extends loginModel
 {

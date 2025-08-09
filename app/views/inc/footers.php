@@ -9,6 +9,8 @@
   <script src="<?php echo APP_URL; ?>/app/views/contents/Login/js/login.js"></script>
 <?php elseif ($view === 'register'): ?>
   <script src="<?php echo APP_URL; ?>/app/views/contents/Register/js/register.js"></script>
+<?php elseif ($view === 'usuarios'): ?>
+  <script src="<?php echo APP_URL; ?>/app/views/contents/Usuarios/js/usuarios.js"></script>
 <?php endif; ?>
 
 <!-- SweetAlert -->
@@ -30,6 +32,9 @@
 
 <!-- Auth (login/register) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/auth.js"></script>
+
+<!-- Sidebar responsivo -->
+<script src="<?php echo APP_URL; ?>/public/assets/js/sidebar.js"></script>
 
 <!-- Main -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/main.js"></script>

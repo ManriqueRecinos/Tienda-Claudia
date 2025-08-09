@@ -3,60 +3,65 @@ namespace app\models;
 
 class viewsModel{
     protected function obtenerVistasModelo($vista){
-        // Lista blanca de vistas: Solo se permitiran ciertas vistas
-        $listaBlanca = ["dashboard", "test"];
+        // Vistas que NO usan layout (login, register)
+        $sinLayout = ["login", "register"];
         
-        if(in_array($vista, $listaBlanca)){
-            // Verificar si existe en la carpeta temática correspondiente (primera letra mayúscula)
-            $vistaMayus = ucfirst($vista); // Convertir primera letra a mayúscula
-            if(is_file("./app/views/contents/{$vistaMayus}/{$vista}.php")){
-                $contenido = "./app/views/contents/{$vistaMayus}/{$vista}.php";
+        if (in_array($vista, $sinLayout)) {
+            if($vista == "login"){
+                return is_file("./app/views/contents/Login/login.php") 
+                    ? "./app/views/contents/Login/login.php" 
+                    : "./app/views/contents/Error/404.php";
             }
-            // Verificar si existe en la carpeta Dashboard
-            else if(is_file("./app/views/contents/Dashboard/" . $vista . ".php")){
-                $contenido = "./app/views/contents/Dashboard/" . $vista . ".php";
-            } 
-            // Verificar si existe en la carpeta principal
-            else if(is_file("./app/views/contents/" . $vista . ".php")){
-                $contenido = "./app/views/contents/" . $vista . ".php";
+            elseif($vista == "register"){
+                return is_file("./app/views/contents/Register/register.php") 
+                    ? "./app/views/contents/Register/register.php" 
+                    : "./app/views/contents/Error/404.php";
             }
-            else{
-                $contenido = "./app/views/contents/Error/404.php";
-            }
-        } 
-        // Caso especial para login
-        elseif($vista=="login"){
-            if(is_file("./app/views/contents/Login/login.php")){
-                $contenido = "./app/views/contents/Login/login.php";
-            } else {
-                $contenido = "./app/views/contents/login.php";
-            }
-        }
-        // Caso especial para index autenticado
-        elseif($vista=="index"){
-            if(is_file("./app/views/contents/index.php")){
-                $contenido = "./app/views/contents/index.php";
-            } else if(is_file("./app/views/contents/Index/index.php")){
-                $contenido = "./app/views/contents/Index/index.php";
-            } else if(is_file("./app/views/contents/Dashboard/dashboard.php")){
-                $contenido = "./app/views/contents/Dashboard/dashboard.php";
-            } else {
-                $contenido = "./app/views/contents/Error/404.php";
-            }
-        }
-        // Caso especial para register
-        elseif($vista=="register"){
-            if(is_file("./app/views/contents/Register/register.php")){
-                $contenido = "./app/views/contents/Register/register.php";
-            } else {
-                $contenido = "./app/views/contents/register.php";
-            }
-        }
-        else{
-            $contenido = "./app/views/contents/Error/404.php";
         }
         
-        return $contenido;
+        // Vistas que SÍ usan layout (index, productos, usuarios, etc.)
+        $conLayout = ["index", "productos", "usuarios", "ventas", "dashboard"];
+        
+        if (in_array($vista, $conLayout)) {
+            // Definir el contenido específico de cada vista
+            $viewContent = null;
+            $currentView = $vista;
+            
+            if ($vista == "index") {
+                $viewContent = "./app/views/contents/Home/home.php";
+                $currentView = "Inicio";
+            }
+            elseif ($vista == "productos") {
+                $viewContent = "./app/views/contents/Productos/productos.php";
+                $currentView = "Productos";
+            }
+            elseif ($vista == "usuarios") {
+                $viewContent = "./app/views/contents/Usuarios/usuarios.php";
+                $currentView = "Usuarios";
+            }
+            elseif ($vista == "ventas") {
+                $viewContent = "./app/views/contents/ventas.php";
+                $currentView = "Ventas";
+            }
+            else {
+                $viewContent = "./app/views/contents/home.php";
+                $currentView = "Panel";
+            }
+            
+            // Verificar que el contenido existe, sino usar 404
+            if (!is_file($viewContent)) {
+                $viewContent = "./app/views/contents/Error/404.php";
+            }
+            
+            // Configurar variables para el layout
+            $GLOBALS['viewContent'] = $viewContent;
+            $GLOBALS['currentView'] = $currentView;
+            
+            return "./app/views/layout/main.php";
+        }
+        
+        // Vista no reconocida
+        return "./app/views/contents/Error/404.php";
     }
 }
 ?>
