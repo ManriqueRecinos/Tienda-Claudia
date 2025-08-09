@@ -14,23 +14,14 @@ class Core
     private int $filasAfectadas = 0;
     private ?string $ultimoId = null;
 
-    /**
-     * Constructor - Principio DIP: Inyección de dependencias
-     * @param Conexion|null $conexion
-     */
+    // Constructor - Principio DIP: Inyección de dependencias
     public function __construct(?Conexion $conexion = null)
     {
         // Si no se proporciona conexión, crear una nueva (Principio SRP)
         $this->conexion = $conexion ?? new Conexion();
     }
 
-    /**
-     * Función get_all - Equivalente a SELECT
-     * Principio SRP: Solo se encarga de consultas de lectura
-     * @param string $sql
-     * @param array $params
-     * @return array|null
-     */
+    // Función get_all - Equivalente a SELECT
     public function get_all(string $sql, array $params = []): ?array
     {
         try {
@@ -43,7 +34,7 @@ class Core
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
             
-            $results = $stmt->fetchAll();
+            $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             $this->conexion->setError('NO HAY ERROR');
             
             return $results ?: null;
@@ -54,13 +45,7 @@ class Core
         }
     }
 
-    /**
-     * Función ejecutar - Para INSERT, UPDATE, DELETE genéricos
-     * Principio SRP: Se encarga de operaciones de escritura
-     * @param string $sql
-     * @param array $params
-     * @return bool
-     */
+    // Función ejecutar - Para INSERT, UPDATE, DELETE genéricos
     public function ejecutar(string $sql, array $params = []): bool
     {
         try {
@@ -91,13 +76,7 @@ class Core
         }
     }
 
-    /**
-     * Función delete - Específica para eliminaciones
-     * Principio SRP: Se encarga únicamente de eliminaciones
-     * @param string $tabla
-     * @param array $condiciones
-     * @return bool
-     */
+    // Función delete - Específica para eliminaciones
     public function delete(string $tabla, array $condiciones): bool
     {
         // Principio de validación - no permitir eliminaciones sin condiciones
@@ -125,14 +104,7 @@ class Core
         return false;
     }
 
-    /**
-     * Función update - Específica para actualizaciones
-     * Principio SRP: Se encarga únicamente de actualizaciones
-     * @param string $tabla
-     * @param array $datos
-     * @param array $condiciones
-     * @return bool
-     */
+    // Función update - Específica para actualizaciones
     public function update(string $tabla, array $datos, array $condiciones): bool
     {
         // Validaciones - Principio de responsabilidad
@@ -176,64 +148,43 @@ class Core
 
     // Métodos auxiliares - Principio SRP: cada método tiene una responsabilidad específica
 
-    /**
-     * Obtiene el número de filas afectadas
-     * @return int
-     */
+    // Obtiene el número de filas afectadas
     public function getFilasAfectadas(): int
     {
         return $this->filasAfectadas;
     }
 
-    /**
-     * Obtiene el último ID insertado
-     * @return string|null
-     */
+    // Obtiene el último ID insertado
     public function getUltimoId(): ?string
     {
         return $this->ultimoId;
     }
 
-    /**
-     * Obtiene la información del último proceso
-     * @return string
-     */
+    // Obtiene la información del último proceso
     public function getInformacion(): string
     {
         return $this->informacion;
     }
 
-    /**
-     * Establece información personalizada
-     * @param string $informacion
-     */
+    // Establece información personalizada
     public function setInformacion(string $informacion): void
     {
         $this->informacion = $informacion;
     }
 
-    /**
-     * Obtiene el último error
-     * @return string
-     */
+    // Obtiene el último error
     public function getError(): string
     {
         return $this->conexion->getError();
     }
 
-    /**
-     * Establece un error personalizado
-     * @param string $error
-     */
+    // Establece un error personalizado
     private function setError(string $error): void
     {
         $this->conexion->setError($error);
     }
 
-    /**
-     * Obtiene la conexión (para casos especiales)
-     * @return Conexion
-     */
+    // Obtiene la conexión (para casos especiales)
     public function getConexion(): Conexion
     {
         return $this->conexion;
@@ -248,42 +199,26 @@ class Core
         return $this->conexion->beginTransaction();
     }
 
-    /**
-     * Confirma transacción
-     * @return bool
-     */
+    // Confirma transacción
     public function commit(): bool
     {
         return $this->conexion->commit();
     }
 
-    /**
-     * Revierte transacción
-     * @return bool
-     */
+    // Método para revertir transacción
     public function rollback(): bool
     {
         return $this->conexion->rollback();
     }
 
-    /**
-     * Método para consultas personalizadas con un solo resultado
-     * @param string $sql
-     * @param array $params
-     * @return array|null
-     */
+    // Método para obtener un solo resultado
     public function getOne(string $sql, array $params = []): ?array
     {
         $results = $this->get_all($sql . " LIMIT 1", $params);
         return $results ? $results[0] : null;
     }
 
-    /**
-     * Método para contar registros
-     * @param string $tabla
-     * @param array $condiciones
-     * @return int
-     */
+    // Método para contar registros
     public function count(string $tabla, array $condiciones = []): int
     {
         $whereClause = '';

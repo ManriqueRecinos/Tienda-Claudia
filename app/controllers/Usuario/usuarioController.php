@@ -1,122 +1,40 @@
 <?php
 namespace app\controllers\Usuario;
 use app\models\Usuario\usuarioModel;
+require_once __DIR__ . '/../../models/Usuario/usuarioModel.php';
 
 class usuarioController extends usuarioModel {
     
-    public function procesar(array $post): array {
-        $accion = $post['action'] ?? '';
-        
-        switch ($accion) {
-            case 'listar':
-                return $this->handleList();
-            case 'obtener':
-                return $this->handleGet($post);
-            case 'crear':
-                return $this->handleCreate($post);
-            case 'actualizar':
-                return $this->handleUpdate($post);
-            case 'eliminar':
-                return $this->handleDelete($post);
+    public function procesar(array $request = []): void {
+        $action = $request['action']
+            ?? ($_GET['action'] ?? ($_POST['action'] ?? ''));
+
+        switch ($action) {
+            case 'obtener_usuarios':
+                $data = $this->getAllUsers();
+                if (!headers_sent()) {
+                    header('Content-Type: application/json; charset=utf-8');
+                }
+                echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                exit;
+            
             default:
-                return [
+                if (!headers_sent()) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(400);
+                }
+                echo json_encode([
                     'success' => false,
-                    'message' => 'Acción no válida'
-                ];
+                    'message' => 'Acción no válida',
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                exit;
         }
     }
-    
-    private function handleList(): array {
-        // Verificar permisos de administrador
-        if (!$this->isAdmin()) {
-            return ['success' => false, 'message' => 'Sin permisos de administrador'];
-        }
-        
-        return $this->getAllUsers();
-    }
-    
-    private function handleGet(array $post): array {
-        if (!$this->isAdmin()) {
-            return ['success' => false, 'message' => 'Sin permisos de administrador'];
-        }
-        
-        $id = $post['id'] ?? null;
-        if (!$id) {
-            return ['success' => false, 'message' => 'ID requerido'];
-        }
-        
-        return $this->getUserById($id);
-    }
-    
-    private function handleCreate(array $post): array {
-        if (!$this->isAdmin()) {
-            return ['success' => false, 'message' => 'Sin permisos de administrador'];
-        }
-        
-        // Validar campos requeridos
-        $required = ['nombres', 'apellidos', 'usuario', 'contrasenia'];
-        foreach ($required as $field) {
-            if (empty($post[$field])) {
-                return ['success' => false, 'message' => "Campo {$field} es requerido"];
-            }
-        }
-        
-        // Verificar si el usuario ya existe
-        if ($this->userExists($post['usuario'])) {
-            return ['success' => false, 'message' => 'El nombre de usuario ya existe'];
-        }
-        
-        // Validar confirmación de contraseña
-        if ($post['contrasenia'] !== ($post['confirm_contrasenia'] ?? '')) {
-            return ['success' => false, 'message' => 'Las contraseñas no coinciden'];
-        }
-        
-        return $this->createUser($post);
-    }
-    
-    private function handleUpdate(array $post): array {
-        if (!$this->isAdmin()) {
-            return ['success' => false, 'message' => 'Sin permisos de administrador'];
-        }
-        
-        $id = $post['id'] ?? null;
-        if (!$id) {
-            return ['success' => false, 'message' => 'ID requerido'];
-        }
-        
-        // Verificar si el usuario existe (para actualización)
-        if (!empty($post['usuario']) && $this->userExists($post['usuario'], $id)) {
-            return ['success' => false, 'message' => 'El nombre de usuario ya existe'];
-        }
-        
-        // Validar confirmación de contraseña si se proporciona
-        if (!empty($post['contrasenia']) && $post['contrasenia'] !== ($post['confirm_contrasenia'] ?? '')) {
-            return ['success' => false, 'message' => 'Las contraseñas no coinciden'];
-        }
-        
-        return $this->updateUser($id, $post);
-    }
-    
-    private function handleDelete(array $post): array {
-        if (!$this->isAdmin()) {
-            return ['success' => false, 'message' => 'Sin permisos de administrador'];
-        }
-        
-        $id = $post['id'] ?? null;
-        if (!$id) {
-            return ['success' => false, 'message' => 'ID requerido'];
-        }
-        
-        // No permitir eliminar el usuario actual
-        if ($id == ($_SESSION['id_usuario'] ?? null)) {
-            return ['success' => false, 'message' => 'No puedes eliminar tu propio usuario'];
-        }
-        
-        return $this->deleteUser($id);
-    }
-    
-    private function isAdmin(): bool {
-        if (!isset($_SESSION)) { session_start(); }
-        return !empty($_SESSION['id_usuario']) && ($_SESSION['rol'] ?? '') == '2';
-    }
+}
+
+// Permitir acceder directamente al controlador desde el navegador para pruebas
+// Ejemplo: http://localhost/TiendaClaudia/app/controllers/Usuario/usuarioController.php?action=listar
+if (isset($_SERVER['SCRIPT_FILENAME']) && realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+    $ctrl = new usuarioController();
+    $ctrl->procesar($_REQUEST);
 }
