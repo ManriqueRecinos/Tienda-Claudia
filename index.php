@@ -15,7 +15,7 @@ require_once './Config/Core.php';
 if(isset($_GET['views'])){
     $url = explode("/", $_GET['views']);
 }else{
-    $url = ["login"];
+    $url = ["index"];
 }
 ?>
 
