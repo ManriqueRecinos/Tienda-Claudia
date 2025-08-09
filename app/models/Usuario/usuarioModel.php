@@ -1,8 +1,7 @@
 <?php
 namespace app\models\Usuario;
-use Config\Core;
 
-class usuarioModel extends Core {
+class usuarioModel extends \Core {
     
     // Obtener todos los usuarios
     public function getAllUsers() {
