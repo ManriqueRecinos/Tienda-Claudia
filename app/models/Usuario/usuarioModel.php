@@ -39,7 +39,28 @@ class usuarioModel extends \Core {
                 INNER JOIN roles rol ON us.id_rol = rol.id_rol
                 WHERE us.id_usuario = :id";
         $params = ['id' => $id];
-        $row = $this->get_one($sql, $params);
+        $row = $this->get_all($sql, $params);
         return $row;
     }
+
+    public function updateUser(int $id, array $data): bool {
+        $sql = "UPDATE usuarios SET 
+                    nombres = :nombres,
+                    apellidos = :apellidos,
+                    usuario = :usuario,
+                    contrasenia = :contrasenia,
+                    ult_modificacion = NOW(),
+                    id_rol = :id_rol
+                WHERE id_usuario = :id";
+        $params = [
+            'id' => $id,
+            'nombres' => $data['nombres'],
+            'apellidos' => $data['apellidos'],
+            'usuario' => $data['usuario'],
+            'contrasenia' => $data['contrasenia'],
+            'id_rol' => $data['id_rol'],
+        ];
+        return $this->ejecutar($sql, $params);
+    }
+    
 }
