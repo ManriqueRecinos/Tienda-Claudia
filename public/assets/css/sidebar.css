@@ -1,0 +1,93 @@
+/* Estilos consistentes para el sidebar */
+
+/* Sidebar principal - colores fijos */
+#sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Header del sidebar */
+#sidebar .text-xl {
+  color: #ffffff !important;
+}
+
+/* Información del usuario */
+#sidebar .bg-slate-800\/50 {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+#sidebar .text-white {
+  color: #ffffff !important;
+}
+
+#sidebar .text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+/* Avatar del usuario */
+#sidebar .bg-blue-600 {
+  background-color: #2563eb !important;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+}
+
+/* Enlaces de navegación */
+#sidebar nav a {
+  color: #cbd5e1 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebar nav a:hover {
+  color: #ffffff !important;
+  background-color: rgba(71, 85, 105, 0.5) !important;
+  transform: translateX(4px);
+}
+
+#sidebar nav a.active {
+  color: #ffffff !important;
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  border-left: 3px solid #3b82f6;
+}
+
+/* Iconos de navegación */
+#sidebar nav a i {
+  color: #94a3b8 !important;
+  transition: color 0.2s ease;
+}
+
+#sidebar nav a:hover i,
+#sidebar nav a.active i {
+  color: #ffffff !important;
+}
+
+/* Botones del footer */
+#sidebar .bg-red-600 {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+#sidebar .bg-red-600:hover {
+  background-color: #b91c1c !important;
+}
+
+#sidebar .bg-blue-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+#sidebar .bg-blue-600:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Asegurar que los estilos no cambien con el estado de login */
+body.logged-in #sidebar,
+body.logged-out #sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  #sidebar .px-4.py-3 {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+}

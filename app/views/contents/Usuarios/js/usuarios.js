@@ -1,7 +1,14 @@
-$(document).ready(function() {
+// Función principal que se puede llamar múltiples veces
+function initUsuarios() {
     // Variables globales
     let isEditing = false;
     let editingId = null;
+    
+    // Limpiar eventos previos para evitar duplicados
+    $('#btn-nuevo-usuario').off('click');
+    $('#btn-cerrar-modal, #btn-cancelar').off('click');
+    $('#modal-usuario').off('click');
+    $('#form-usuario').off('submit');
     
     // Cargar usuarios al iniciar
     cargarUsuarios();
@@ -190,4 +197,16 @@ $(document).ready(function() {
         div.textContent = text;
         return div.innerHTML;
     }
+}
+
+// Inicializar cuando el DOM esté listo
+$(document).ready(function() {
+    initUsuarios();
 });
+
+// Hacer la función disponible globalmente para SPA
+window.cargarUsuarios = function() {
+    if (typeof initUsuarios === 'function') {
+        initUsuarios();
+    }
+};

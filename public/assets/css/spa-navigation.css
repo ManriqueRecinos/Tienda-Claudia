@@ -1,0 +1,102 @@
+/* Estilos para navegación SPA */
+
+/* Transiciones suaves para el contenido */
+#main-content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Indicador de carga */
+#loading-indicator {
+  backdrop-filter: blur(2px);
+}
+
+/* Estados activos en sidebar */
+nav a.active {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  color: #ffffff !important;
+  border-left: 3px solid #3b82f6;
+}
+
+nav a.active i {
+  color: #ffffff !important;
+}
+
+/* Hover states para sidebar oscuro */
+nav a:hover {
+  background-color: rgba(71, 85, 105, 0.5);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+nav a:hover i {
+  color: #ffffff;
+}
+
+/* Animación de carga */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Transición de contenido */
+.content-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos adicionales para sidebar moderno */
+#sidebar {
+  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+}
+
+/* Asegurar que el sidebar mantenga colores consistentes */
+#sidebar, #sidebar * {
+  color: inherit;
+}
+
+/* Efecto de brillo en el avatar del usuario */
+#sidebar .bg-blue-600 {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Mejorar el overlay móvil */
+#mobile-menu-overlay {
+  backdrop-filter: blur(4px);
+}
+
+/* Transiciones suaves para todos los elementos del sidebar */
+#sidebar a, #sidebar button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efecto de elevación en hover */
+#sidebar a:hover, #sidebar button:hover {
+  transform: translateX(4px);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  #loading-indicator {
+    padding: 1rem;
+  }
+  
+  #loading-indicator .flex {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  /* Ajustar información de usuario en móvil */
+  #sidebar .px-4.py-3 {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+}

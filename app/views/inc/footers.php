@@ -33,8 +33,11 @@
 <!-- Auth (login/register) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/auth.js"></script>
 
-<!-- Sidebar responsivo -->
-<script src="<?php echo APP_URL; ?>/public/assets/js/sidebar.js"></script>
+<!-- Sidebar responsive JS -->
+<script src="<?php echo APP_URL; ?>/app/views/contents/sidebar.js"></script>
+
+<!-- SPA Navigation -->
+<script src="<?php echo APP_URL; ?>/public/assets/js/spa-navigation.js"></script>
 
 <!-- Main -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/main.js"></script>

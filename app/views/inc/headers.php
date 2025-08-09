@@ -24,6 +24,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
 
+<!-- SPA Navigation CSS -->
+<link rel="stylesheet" href="<?php echo APP_URL; ?>/public/assets/css/spa-navigation.css">
+
+<!-- Sidebar CSS -->
+<link rel="stylesheet" href="<?php echo APP_URL; ?>/public/assets/css/sidebar.css">
+
 <!-- CSS por vista -->
 <?php $view = $_GET['views'] ?? ''; ?>
 <?php if ($view === 'usuarios'): ?>
