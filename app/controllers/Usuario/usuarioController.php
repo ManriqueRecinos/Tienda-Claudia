@@ -17,7 +17,15 @@ class usuarioController extends usuarioModel {
                 }
                 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                 exit;
-            
+                case 'obtener_usuario':
+                    $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
+                    $data = $this->getUserById($id);
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json; charset=utf-8');
+                    }
+                    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit;
+
             default:
                 if (!headers_sent()) {
                     header('Content-Type: application/json; charset=utf-8');
