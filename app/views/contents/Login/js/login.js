@@ -24,16 +24,19 @@
       })
       .done(function(resp){
         if(resp && resp.success){
-          if(window.Swal){
-            Swal.fire({icon:'success', title:'Bienvenido', text:'Ingreso exitoso'}).then(()=>{
-              window.location.href = APP_URL + '?views=index';
-            });
-          } else {
-            window.location.href = APP_URL + '?views=index';
-          }
+          var u = payload.usuario || '';
+          try {
+            sessionStorage.setItem('toast', JSON.stringify({
+              type: 'success',
+              title: 'Bienvenido',
+              message: u ? ('Ingreso exitoso, ' + u) : 'Ingreso exitoso',
+              position: 'toast-top-right'
+            }));
+          } catch(e){}
+          window.location.href = APP_URL + '?views=index';
         } else {
           const msg = (resp && resp.message) || 'Usuario o contraseña inválidos';
-          if(window.Swal){ Swal.fire({icon:'error', title:'Acceso denegado', text: msg}); }
+          if(window.toastr){ toastr.error(msg); }
           else { alert(msg); }
         }
       })

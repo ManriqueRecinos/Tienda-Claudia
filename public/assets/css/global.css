@@ -7,6 +7,10 @@
   --text:#111827; /* Gray-900 */
 }
 
+.lexend, body, input, button, select, textarea {
+  font-family: 'Lexend', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
 body{ background:var(--bg); color:var(--text); }
 .btn-primary{ background:var(--color-primary); color:#fff; }
 .btn-primary:hover{ background:var(--color-primary-hover); }

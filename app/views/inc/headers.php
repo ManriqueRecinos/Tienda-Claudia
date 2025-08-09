@@ -14,4 +14,12 @@
 <link rel="stylesheet" href="<?php echo APP_URL; ?>/public/assets/css/global.css">
 
 <!-- Font Awesome via CDN (sin integrity para evitar bloqueos por SRI desactualizado) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="<?php echo APP_URL; ?>/public/assets/css/all.min.css" />
+
+<!-- Toastr CSS (sin integrity para evitar bloqueos por SRI) -->
+<link rel="stylesheet" href="<?php echo APP_URL; ?>/public/assets/css/toastr.min.css" />
+
+<!-- Google Fonts: Lexend -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
