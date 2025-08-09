@@ -2,8 +2,18 @@
 namespace app\models\Usuario;
 require_once __DIR__ . '/../../../Config/Core.php';
 
+// ------------------------------------------------------------
+// Modelo de Usuarios: CRUD de usuarios
+// - getAllUsers(): listar todos con mensaje y total
+// - getUserById(): obtener uno con mensaje y datos
+// - updateUser(): actualizar campos y devolver estado
+// - deleteUser(): eliminar y reportar usuario eliminado
+// ------------------------------------------------------------
+
 class usuarioModel extends \Core {
 
+    // Obtener todos los usuarios (acción: obtener_usuarios)
+    // Retorna: success, message, datos[], total
     public function getAllUsers(): ?array {
         $sql = "SELECT us.id_usuario,
                     us.nombres,
@@ -25,6 +35,8 @@ class usuarioModel extends \Core {
         ];
     }
 
+    // Obtener un usuario por id (acción: obtener_usuario)
+    // Retorna: success, message (con nombre completo), datos|null
     public function getUserById(int $id): ?array {
         $id = (int)$id;
         $sql = "SELECT us.id_usuario,
@@ -57,6 +69,8 @@ class usuarioModel extends \Core {
         ];
     }
 
+    // Actualizar un usuario por id (acción: actualizar_usuario)
+    // Retorna: success, message, filas_afectadas
     public function updateUser(int $id, array $data): array {
         $pdo = $this->conexion->getConexion();
         if (!$pdo) {
@@ -93,6 +107,8 @@ class usuarioModel extends \Core {
         ];
     }
 
+    // Eliminar un usuario por id (acción: eliminar_usuario)
+    // Retorna: success, message (con nombre completo), filas_afectadas
     public function deleteUser(int $id): array {
         $id = (int)$id;
 

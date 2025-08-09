@@ -10,6 +10,7 @@ class usuarioController extends usuarioModel {
             ?? ($_GET['action'] ?? ($_POST['action'] ?? ''));
 
         switch ($action) {
+            // Acción: obtener_usuarios -> Lista todos los usuarios
             case 'obtener_usuarios':
                 $data = $this->getAllUsers();
                 if (!headers_sent()) {
@@ -17,7 +18,8 @@ class usuarioController extends usuarioModel {
                 }
                 echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                 exit;
-                case 'obtener_usuario':
+            // Acción: obtener_usuario -> Obtiene un usuario por id
+            case 'obtener_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
                     $data = $this->getUserById($id);
                     if (!headers_sent()) {
@@ -25,7 +27,8 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit;
-                case 'actualizar_usuario':
+            // Acción: actualizar_usuario -> Actualiza un usuario por id
+            case 'actualizar_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
                     $data = $this->updateUser($id, $request);
                     if (!headers_sent()) {
@@ -33,7 +36,8 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit;
-                case 'eliminar_usuario':
+            // Acción: eliminar_usuario -> Elimina un usuario por id
+            case 'eliminar_usuario':
                     $id = $request['id_usuario'] ?? ($_GET['id_usuario'] ?? ($_POST['id_usuario'] ?? ''));
                     $data = $this->deleteUser($id);
                     if (!headers_sent()) {
