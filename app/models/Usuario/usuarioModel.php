@@ -77,16 +77,46 @@ class usuarioModel extends \Core {
             return [ 'success' => false, 'message' => 'Sin conexión a la BD' ];
         }
         $id = (int)$id;
-        $nombres = $pdo->quote($data['nombres'] ?? '');
-        $apellidos = $pdo->quote($data['apellidos'] ?? '');
-        $usuario = $pdo->quote($data['usuario'] ?? '');
+        $nombres = $data['nombres'] ?? '';
+        $apellidos = $data['apellidos'] ?? '';
+        $usuario = $data['usuario'] ?? '';
+        
+        // Verificar si ya existe un usuario con el mismo nombre de usuario
+        $checkUsuarioSql = "SELECT id_usuario FROM usuarios WHERE usuario = ? AND id_usuario != ?";
+        $stmtUsuario = $pdo->prepare($checkUsuarioSql);
+        $stmtUsuario->execute([$usuario, $id]);
+        
+        if ($stmtUsuario->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con el mismo nombre de usuario',
+                'filas_afectadas' => 0
+            ];
+        }
+        
+        // Verificar si ya existe un usuario con la misma combinación de nombres y apellidos
+        $checkNombresApellidosSql = "SELECT id_usuario FROM usuarios WHERE nombres = ? AND apellidos = ? AND id_usuario != ?";
+        $stmtNombresApellidos = $pdo->prepare($checkNombresApellidosSql);
+        $stmtNombresApellidos->execute([$nombres, $apellidos, $id]);
+        
+        if ($stmtNombresApellidos->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con el mismo nombre y apellidos',
+                'filas_afectadas' => 0
+            ];
+        }
+        
+        $nombresQuoted = $pdo->quote($nombres);
+        $apellidosQuoted = $pdo->quote($apellidos);
+        $usuarioQuoted = $pdo->quote($usuario);
         $contrasenia = $pdo->quote($data['contrasenia'] ?? '');
         $id_rol = (int)($data['id_rol'] ?? 0);
 
         $sql = "UPDATE usuarios SET 
-                    nombres = $nombres,
-                    apellidos = $apellidos,
-                    usuario = $usuario,
+                    nombres = $nombresQuoted,
+                    apellidos = $apellidosQuoted,
+                    usuario = $usuarioQuoted,
                     contrasenia = $contrasenia,
                     ult_modificacion = NOW(),
                     id_rol = $id_rol
@@ -96,7 +126,7 @@ class usuarioModel extends \Core {
         if ($ok) {
             return [
                 'success' => true,
-                'message' => 'Usuario ' . ($data['usuario'] ?? '') . ' actualizado correctamente',
+                'message' => 'Usuario ' . $usuario . ' actualizado correctamente',
                 'filas_afectadas' => $this->get_filas_afectadas(),
             ];
         }
