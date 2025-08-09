@@ -62,5 +62,10 @@ class usuarioModel extends \Core {
         ];
         return $this->ejecutar($sql, $params);
     }
-    
+
+    public function deleteUser(int $id): bool {
+        $sql = "DELETE FROM usuarios WHERE id_usuario = :id";
+        $params = ['id' => $id];
+        return $this->ejecutar($sql, $params);
+    }
 }
