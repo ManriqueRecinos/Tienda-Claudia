@@ -3,17 +3,18 @@
 
 /* Ajuste responsivo del alto del contenedor de Usuarios */
 #usuarios-card {
-  /* Altura basada en la ventana con cierto margen */
-  height: 90dvh;
+  /* Se adapta al contenido y se limita por ventana */
   max-height: 92dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* fuerza el scroll interno, evita scroll de la página */
+  overflow: hidden; /* scroll interno cuando sea necesario */
 }
 
 /* En móvil usa un poco más de alto disponible */
 @media (max-width: 640px) {
-  #usuarios-card { height: 90dvh; }
+  /* En móvil, mantener límite superior del card por ventana */
+  #usuarios-card { max-height: 92dvh; }
+
   /* Compactar espacios en header y barra inferior */
   .usuarios-header { gap: 0.5rem; }
   .usuarios-toolbar-bottom { padding-top: 0.25rem; padding-bottom: 0.25rem; gap: 0.25rem; }
@@ -25,8 +26,10 @@
 
 /* Asegurar que la sección de la tabla pueda crecer y hacer scroll */
 #usuarios-card .flex-1 { min-height: 0; }
-#usuarios-card .overflow-auto { max-height: 100%; }
-#usuarios-card .h-full { height: 100% !important; }
+/* Limitar la altura del área scrolleable de la tabla para que el card no crezca demasiado */
+#usuarios-card .overflow-auto { max-height: 65vh; }
+/* Permitir que el contenedor se encoja si hay pocos datos */
+#usuarios-card .h-full { height: auto !important; }
 
 /* Header sticky dentro del card */
 #usuarios-card .usuarios-header{
@@ -44,6 +47,12 @@
   #tabla-usuarios th,
   #tabla-usuarios td { padding: 0.3rem 0.4rem; }
 }
+
+/* Ajustes responsive para la altura máxima de la tabla */
+@media (max-width: 640px) {
+  #usuarios-card .overflow-auto { max-height: 60vh; }
+}
+
 #toast-container > .toast-info,
 #toast-container > .toast-warning,
 #toast-container > .toast-success,

@@ -149,9 +149,11 @@
           <div class="flex items-center gap-2 flex-wrap">
             <label for="page-size" class="text-xs sm:text-sm text-gray-600">Mostrar:</label>
             <select id="page-size" class="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1">
-              <option value="10" selected>10</option>
-              <option value="20">20</option>
+              <option value="5">5</option>
+              <option value="15" selected>15</option>
               <option value="30">30</option>
+              <option value="45">45</option>
+              <option value="60">60</option>
               <option value="0">Todos</option>
             </select>
             <div id="paginacion-usuarios" class="flex items-center gap-1"></div>

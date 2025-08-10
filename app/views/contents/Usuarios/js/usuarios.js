@@ -1,6 +1,6 @@
 let USU_ROWS = [];
 let CURRENT_PAGE = 1;
-let PAGE_SIZE = 10; // 0 = all
+let PAGE_SIZE = 15; // 0 = all
 let SEARCH_QUERY = '';
 let SORT_FIELD = null; // 'nombre' | 'estado'
 let SORT_DIR = 'asc'; // 'asc' | 'desc'
@@ -15,7 +15,7 @@ $(document).ready(function(){
     if ($pageSize.length){
         {
             const v = parseInt($pageSize.val(), 10);
-            PAGE_SIZE = Number.isNaN(v) ? 10 : v;
+            PAGE_SIZE = Number.isNaN(v) ? 15 : v;
         }
 
 // Cargar roles en el select del modal
@@ -124,7 +124,7 @@ function obtenerNombreRolPorId(idRol){
 }
         $pageSize.on('change', function(){
             const v = parseInt($(this).val(), 10);
-            PAGE_SIZE = Number.isNaN(v) ? 10 : v; // 0 (Todos) se respeta
+            PAGE_SIZE = Number.isNaN(v) ? 15 : v; // 0 (Todos) se respeta
             CURRENT_PAGE = 1;
             renderizarUsuarios();
         });
@@ -761,43 +761,67 @@ function construirPaginador($container, totalPages, current){
     if (totalPages <= 1){
         return;
     }
-    // Botón "Primero"
+    // Primero y Anterior
     $container.append(`<button type="button" class="px-2 py-1 text-xs border rounded ${current === 1 ? 'opacity-50 cursor-not-allowed' : ''}" data-page="1" ${current === 1 ? 'disabled' : ''}>«</button>`);
-    // Botón "Anterior"
     $container.append(`<button type="button" class="px-2 py-1 text-xs border rounded ${current === 1 ? 'opacity-50 cursor-not-allowed' : ''}" data-page="${Math.max(1, current-1)}" ${current === 1 ? 'disabled' : ''}>‹</button>`);
 
-    // Rango de páginas compacto
-    const windowSize = 5;
-    let start = Math.max(1, current - Math.floor(windowSize/2));
-    let end = start + windowSize - 1;
+    // Tres números contiguos: ej. 1 2 3, 2 3 4, etc.
+    let start = Math.max(1, current - 1);
+    let end = start + 2;
     if (end > totalPages){
         end = totalPages;
-        start = Math.max(1, end - windowSize + 1);
+        start = Math.max(1, end - 2);
     }
-
-    if (start > 1){
-        $container.append(`<button type=\"button\" class=\"px-2 py-1 text-xs border rounded\" data-page=\"1\">1</button>`);
-        if (start > 2){
-            $container.append(`<span class=\"px-1 text-xs\">…</span>`);
-        }
-    }
-
     for (let p = start; p <= end; p++){
         const active = p === current;
         $container.append(`<button type="button" class="px-2 py-1 text-xs border rounded ${active ? 'bg-gray-200 font-semibold' : ''}" data-page="${p}">${p}</button>`);
     }
 
-    if (end < totalPages){
-        if (end < totalPages - 1){
-            $container.append(`<span class=\"px-1 text-xs\">…</span>`);
-        }
-        $container.append(`<button type=\"button\" class=\"px-2 py-1 text-xs border rounded\" data-page=\"${totalPages}\">${totalPages}</button>`);
-    }
-
-    // Botón "Siguiente"
+    // Siguiente y Último
     $container.append(`<button type="button" class="px-2 py-1 text-xs border rounded ${current === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" data-page="${Math.min(totalPages, current+1)}" ${current === totalPages ? 'disabled' : ''}>›</button>`);
-    // Botón "Último"
     $container.append(`<button type="button" class="px-2 py-1 text-xs border rounded ${current === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" data-page="${totalPages}" ${current === totalPages ? 'disabled' : ''}>»</button>`);
+}
+
+function mostrarCargaTabla(){
+    const $table = $('#tabla-usuarios');
+    if (!$table.length) return;
+    const $scroll = $table.closest('.overflow-auto');
+    if ($scroll.length){
+        if (!$scroll.find('.usuarios-loading').length){
+            // Ensure positioning for overlay
+            if ($scroll.css('position') === 'static') { $scroll.css('position', 'relative'); }
+            $scroll.append(
+                '<div class="usuarios-loading absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-20">'+
+                  '<div class="text-gray-600 text-sm sm:text-base">'+
+                    '<i class="fa fa-spinner fa-spin mr-2"></i>'+
+                    '<span>Cargando usuarios...</span>'+
+                  '</div>'+
+                '</div>'
+            );
+        }
+    }
+    // Clear tbody content to avoid stale rows while loading
+    const $tbody = $table.find('tbody');
+    if ($tbody.length) { $tbody.empty(); }
+}
+
+function ocultarCargaTabla(){
+    const $table = $('#tabla-usuarios');
+    if (!$table.length) return;
+    const $scroll = $table.closest('.overflow-auto');
+    $scroll.find('.usuarios-loading').remove();
+}
+
+function mostrarErrorTabla(message){
+    const $tbody = $('#tabla-usuarios tbody');
+    if (!$tbody.length) return;
+    $tbody.empty().append(
+        '<tr>'+
+          '<td colspan="6" class="px-6 py-6 text-center text-red-600">'+
+            '<i class="fa fa-circle-exclamation mr-2"></i>' + escapar(message) +
+          '</td>'+
+        '</tr>'
+    );
 }
 
 function escapar(v){
