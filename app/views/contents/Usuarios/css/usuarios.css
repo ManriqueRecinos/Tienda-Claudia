@@ -73,3 +73,13 @@
   /* Evitar quiebres raros en nombres largos */
   #tabla-usuarios td { word-break: break-word; }
 }
+
+/* Separadores verticales entre columnas para mejor legibilidad */
+#tabla-usuarios th,
+#tabla-usuarios td {
+  border-right: 1px solid #e5e7eb; /* gray-200 */
+}
+#tabla-usuarios th:last-child,
+#tabla-usuarios td:last-child {
+  border-right: none;
+}

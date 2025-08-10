@@ -610,8 +610,8 @@ function renderizarTabla(usuarios){
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${nombreMatch}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${nomRol}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm ${estadoBool ? 'text-green-700' : 'text-red-700'}">${estadoText}</td>
-                <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fechaCreacion}</td>
-                <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fechaModificacion}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fechaCreacion}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fechaModificacion}</td>
             </tr>`;
         $tb.append(tr);
     });
