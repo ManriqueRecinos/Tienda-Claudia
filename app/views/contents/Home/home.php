@@ -1,8 +1,8 @@
 <div class="bg-white rounded shadow p-6">
   <h2 class="text-xl font-semibold mb-2">Bienvenido a TiendaClaudia</h2>
   <?php if ($isLogged): ?>
-    <p class="text-gray-600">Has iniciado sesión como <strong><?php echo htmlspecialchars($user['usuario']); ?></strong> (rol: <?php echo htmlspecialchars($user['rol'] == '2' ? 'Administrador' : ($user['rol'] == '1' ? 'Empleado' : 'Usuario')); ?>).</p>
-    <p class="text-gray-600 mt-2">Explora las opciones del menú para gestionar productos<?php echo ($_SESSION['rol'] ?? '') == '2' ? ', usuarios' : ''; ?> y ventas.</p>
+    <p class="text-gray-600">Has iniciado sesión como <strong><?php echo htmlspecialchars($user['usuario']); ?></strong> (rol: <?php echo htmlspecialchars($user['id_rol'] == '2' ? 'Administrador' : ($user['id_rol'] == '1' ? 'Empleado' : 'Usuario')); ?>).</p>
+    <p class="text-gray-600 mt-2">Explora las opciones del menú para gestionar productos<?php echo ($_SESSION['id_rol'] ?? '') == '2' ? ', usuarios' : ''; ?> y ventas.</p>
   <?php else: ?>
     <p class="text-gray-600">Explora nuestra tienda y productos. Para acceder a funciones completas, <a href="<?php echo APP_URL; ?>?views=login" class="text-blue-600 hover:underline">inicia sesión</a>.</p>
     <div class="mt-4 space-x-3">
@@ -26,7 +26,7 @@
   </div>
   
   <?php if ($isLogged): ?>
-    <?php if (($_SESSION['rol'] ?? '') == '2'): ?>
+    <?php if (($_SESSION['id_rol'] ?? '') == '2'): ?>
     <div class="bg-white rounded shadow p-6">
       <h3 class="text-lg font-semibold mb-2">
         <i class="fa fa-users text-green-600 mr-2"></i>Usuarios

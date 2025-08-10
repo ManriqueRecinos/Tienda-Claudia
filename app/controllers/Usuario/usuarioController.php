@@ -61,6 +61,14 @@ class usuarioController extends usuarioModel {
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit; 
                     
+            // Acción: roles -> Obtiene todos los roles
+            case 'roles':
+                    $data = $this->roles();
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json; charset=utf-8');
+                    }
+                    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit;
             // Acción: default -> Acción no válida
             default:
                 if (!headers_sent()) {
