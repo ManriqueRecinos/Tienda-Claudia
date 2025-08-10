@@ -492,6 +492,8 @@ function obtenerNombreRolPorId(idRol){
         });
     });
 
+    // Construir la tabla y UI (totales/paginador) incluso sin datos iniciales
+    renderizarUsuarios();
     obtener_usuarios();
 });
 
@@ -638,9 +640,7 @@ function mostrarCargaTabla(){
             );
         }
     }
-    // Clear tbody content to avoid stale rows while loading
-    const $tbody = $table.find('tbody');
-    if ($tbody.length) { $tbody.empty(); }
+    // No vaciar el tbody para mantener la estructura visible mientras carga
 }
 
 function ocultarCargaTabla(){

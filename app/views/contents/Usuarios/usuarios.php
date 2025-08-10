@@ -136,7 +136,7 @@
                 <th class="px-3 py-2 text-left text-[11px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
                 <th data-sort="estado" class="px-3 py-2 text-left text-[11px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none">Estado <i class="fa fa-sort text-gray-400 ml-1"></i></th>
                 <th class="px-3 py-2 text-left text-[11px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de Creación</th>
-                <th class="px-3 py-2 text-left text-[11px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de Modificación</th>
+                <th class="px-3 py-2 text-left text-[11px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Última Modificación</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100"></tbody>
