@@ -365,7 +365,7 @@ function obtenerNombreRolPorId(idRol){
             notificarDesdeRespuesta(resp, 'Usuario actualizado');
             if (resp && (resp.success === true || resp.success === 1)){
                 const id = String(payload.id_usuario);
-                // Actualizar USER_CACHE
+                // Actualizar cache detallado
                 if (!USER_CACHE[id]) USER_CACHE[id] = {};
                 USER_CACHE[id] = Object.assign({}, USER_CACHE[id], {
                     id_usuario: id,
@@ -374,10 +374,10 @@ function obtenerNombreRolPorId(idRol){
                     apellidos: payload.apellidos,
                     id_rol: payload.id_rol
                 });
-                // Actualizar USU_ROWS (solo la fila) y re-renderizar sin pedir al servidor
+                // Actualizar fila en listado si existe
                 const idx = Array.isArray(USU_ROWS) ? USU_ROWS.findIndex(x => String(x.id_usuario) === id) : -1;
                 if (idx !== -1){
-                    const old = USU_ROWS[idx] || {};
+                    const old = USU_ROWS[idx];
                     const nomRol = obtenerNombreRolPorId(payload.id_rol) || old.nom_rol || old.rol || '';
                     USU_ROWS[idx] = Object.assign({}, old, {
                         usuario: payload.usuario,
@@ -389,11 +389,106 @@ function obtenerNombreRolPorId(idRol){
                     });
                 }
                 renderizarUsuarios();
+                cerrarModalUsuario();
             }
-            cerrarModalUsuario();
         }).fail(function(){
             if (tCarga) toastr.clear(tCarga);
             toastr.error('Error de conexión al actualizar usuario');
+        });
+    });
+
+    // -----------------------------
+    // Modal: Nuevo Usuario
+    // -----------------------------
+    function cargarRolesEnSelectNuevo(){
+        const $sel = $('#new-usuario-rol');
+        if (!$sel.length) return;
+        if (Array.isArray(ROLES_CACHE)){
+            llenarSelectRoles($sel, ROLES_CACHE);
+            return;
+        }
+        $sel.prop('disabled', true).empty().append('<option value="">Cargando roles...</option>');
+        $.ajax({
+            url: APP_URL + '/app/controllers/Usuario/usuarioController.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { action: 'roles' }
+        }).done(function(resp){
+            const ok = !!(resp && (resp.success === true || resp.success === 1));
+            ROLES_CACHE = ok ? (resp.datos || resp.data || []) : [];
+            llenarSelectRoles($sel, ROLES_CACHE);
+        }).fail(function(){
+            $sel.empty().append('<option value="">Error al cargar roles</option>').prop('disabled', true);
+            toastr.error('No se pudieron cargar los roles');
+        });
+    }
+
+    function abrirModalNuevoUsuario(){
+        $('#new-usuario-username').val('');
+        $('#new-usuario-nombres').val('');
+        $('#new-usuario-apellidos').val('');
+        const $pass = $('#new-usuario-pass');
+        if ($pass.length){
+            $pass.val('');
+            $pass.attr('type', 'password');
+            $('#toggle-pass-icon-new').removeClass('fa-eye').addClass('fa-eye-slash');
+        }
+        cargarRolesEnSelectNuevo();
+        $('#modal-nuevo-usuario').removeClass('hidden');
+    }
+
+    function cerrarModalNuevoUsuario(){
+        $('#modal-nuevo-usuario').addClass('hidden');
+    }
+
+    // Abrir desde botón de toolbar existente #btn-nuevo
+    $(document).on('click', '#btn-nuevo', function(){
+        abrirModalNuevoUsuario();
+    });
+
+    // Cerrar modal nuevo usuario
+    $(document).on('click', '#modal-nuevo-close, #modal-nuevo-cancel', function(){
+        cerrarModalNuevoUsuario();
+    });
+
+    // Toggle visibilidad contraseña (nuevo)
+    $(document).on('click', '#toggle-pass-new', function(){
+        const $pass = $('#new-usuario-pass');
+        if (!$pass.length) return;
+        const isPassword = $pass.attr('type') === 'password';
+        $pass.attr('type', isPassword ? 'text' : 'password');
+        const $icon = $('#toggle-pass-icon-new');
+        if (isPassword){ $icon.removeClass('fa-eye-slash').addClass('fa-eye'); }
+        else { $icon.removeClass('fa-eye').addClass('fa-eye-slash'); }
+    });
+
+    // Enviar formulario de creación
+    $(document).on('submit', '#form-nuevo-usuario', function(e){
+        e.preventDefault();
+        const payload = {
+            action: 'crear_usuario',
+            usuario: ($('#new-usuario-username').val() || '').toString(),
+            nombres: ($('#new-usuario-nombres').val() || '').toString(),
+            apellidos: ($('#new-usuario-apellidos').val() || '').toString(),
+            contrasenia: ($('#new-usuario-pass').val() || '').toString(),
+            id_rol: ($('#new-usuario-rol').val() || '').toString()
+        };
+        const tCarga = mostrarToastCargando('Creando usuario, espere por favor...');
+        $.ajax({
+            url: APP_URL + '/app/controllers/Usuario/usuarioController.php',
+            type: 'POST',
+            dataType: 'json',
+            data: payload
+        }).done(function(resp){
+            if (tCarga) toastr.clear(tCarga);
+            notificarDesdeRespuesta(resp, 'Usuario creado');
+            if (resp && (resp.success === true || resp.success === 1)){
+                obtener_usuarios();
+                cerrarModalNuevoUsuario();
+            }
+        }).fail(function(){
+            if (tCarga) toastr.clear(tCarga);
+            toastr.error('Error de conexión al crear usuario');
         });
     });
 
@@ -402,6 +497,7 @@ function obtenerNombreRolPorId(idRol){
 
 function resaltarSeleccion(){
     const $rows = $('#tabla-usuarios tbody tr.row-user');
+    // ... (rest of the code remains the same)
     // limpiar estilos previos
     $rows.removeClass('row-selected bg-emerald-100 border-l-4 border-emerald-500 bg-blue-100 border-l-8 border-blue-500');
     $rows.removeClass('hover:bg-emerald-50').addClass('hover:bg-blue-50');

@@ -71,6 +71,52 @@ class usuarioModel extends \Core {
             'datos' => null,
         ];
     }
+    public function createUser(array $data): array {
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) {
+            return [ 'success' => false, 'message' => 'Sin conexión a la BD' ];
+        }
+        $nombres = $data['nombres'] ?? '';
+        $apellidos = $data['apellidos'] ?? '';
+        $usuario = $data['usuario'] ?? '';
+        $contrasenia = $data['contrasenia'] ?? '';
+        $contraseniaEncriptada = password_hash($contrasenia, PASSWORD_DEFAULT);
+        $id_rol = (int)($data['id_rol'] ?? 0);
+
+        // Validar duplicado de nombre de usuario
+        $checkSql = "SELECT id_usuario FROM usuarios WHERE usuario = ? LIMIT 1";
+        $stmtCheck = $pdo->prepare($checkSql);
+        $stmtCheck->execute([$usuario]);
+        if ($stmtCheck->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con ese nombre de usuario',
+                'filas_afectadas' => 0
+            ];
+        }
+
+        // Validar duplicado por nombres + apellidos
+        $checkNombreSql = "SELECT id_usuario FROM usuarios WHERE LOWER(TRIM(nombres)) = LOWER(TRIM(?)) AND LOWER(TRIM(apellidos)) = LOWER(TRIM(?)) LIMIT 1";
+        $stmtNombre = $pdo->prepare($checkNombreSql);
+        $stmtNombre->execute([$nombres, $apellidos]);
+        if ($stmtNombre->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con ese nombre y apellidos',
+                'filas_afectadas' => 0
+            ];
+        }
+
+        $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia, id_rol, fecha_creacion) VALUES (?, ?, ?, ?, ?, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nombres, $apellidos, $usuario, $contraseniaEncriptada, $id_rol]);
+        $id = $pdo->lastInsertId();
+        return [
+            'success' => true,
+            'message' => 'Usuario ' . $usuario . ' creado correctamente',
+            'filas_afectadas' => $this->get_filas_afectadas(),
+        ];
+    }
 
     // Actualizar un usuario por id (acción: actualizar_usuario)
     // Retorna: success, message, filas_afectadas

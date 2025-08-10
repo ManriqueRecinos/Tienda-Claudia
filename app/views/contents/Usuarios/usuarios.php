@@ -1,7 +1,3 @@
-  <!-- Estilos específicos de Usuarios -->
-  <link rel="stylesheet" href="<?php echo APP_URL; ?>app/views/contents/Usuarios/css/usuarios.css">
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php if (!$isLogged): ?>
     <div class="bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
       <p class="text-yellow-800">
@@ -59,6 +55,56 @@
           <div class="mt-4 flex items-center justify-end gap-2">
             <button type="button" id="modal-usuario-cancel" class="px-3 py-2 rounded border text-sm">Cancelar</button>
             <button type="submit" class="px-3 py-2 rounded bg-sky-600 text-white text-sm hover:bg-sky-700">Guardar cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Usuario -->
+  <div id="modal-nuevo-usuario" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative z-10 min-h-full flex items-center justify-center p-4">
+      <div class="w-full max-w-lg bg-white rounded-lg shadow-lg">
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-base sm:text-lg font-semibold">Nuevo usuario</h3>
+          <button type="button" id="modal-nuevo-close" class="text-gray-500 hover:text-gray-700">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+        <form id="form-nuevo-usuario" class="p-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="new-usuario-username" class="block text-xs text-gray-600 mb-1">Usuario</label>
+              <input id="new-usuario-username" name="usuario" type="text" class="w-full border rounded px-3 py-2 text-sm" required />
+            </div>
+            <div>
+              <label for="new-usuario-nombres" class="block text-xs text-gray-600 mb-1">Nombres</label>
+              <input id="new-usuario-nombres" name="nombres" type="text" class="w-full border rounded px-3 py-2 text-sm" required />
+            </div>
+            <div>
+              <label for="new-usuario-apellidos" class="block text-xs text-gray-600 mb-1">Apellidos</label>
+              <input id="new-usuario-apellidos" name="apellidos" type="text" class="w-full border rounded px-3 py-2 text-sm" required />
+            </div>
+            <div>
+              <label for="new-usuario-rol" class="block text-xs text-gray-600 mb-1">Rol</label>
+              <select id="new-usuario-rol" name="id_rol" class="w-full border rounded px-3 py-2 text-sm" required>
+                <option value="">Cargando roles...</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label for="new-usuario-pass" class="block text-xs text-gray-600 mb-1">Contraseña</label>
+              <div class="relative">
+                <input id="new-usuario-pass" name="contrasenia" type="password" class="w-full border rounded px-3 py-2 pr-10 text-sm" required />
+                <button type="button" id="toggle-pass-new" class="absolute inset-y-0 right-2 px-2 text-gray-500 hover:text-gray-700">
+                  <i id="toggle-pass-icon-new" class="fa fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-end gap-2">
+            <button type="button" id="modal-nuevo-cancel" class="px-3 py-2 rounded border text-sm">Cancelar</button>
+            <button type="submit" class="px-3 py-2 rounded bg-emerald-600 text-white text-sm hover:bg-emerald-700">Crear</button>
           </div>
         </form>
       </div>
