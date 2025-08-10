@@ -21,8 +21,10 @@ class usuarioModel extends \Core {
                     us.usuario,
                     us.contrasenia,
                     us.fecha_creacion,
+                    us.ult_modificacion,
                     us.id_rol,
-                    rol.nom_rol
+                    rol.nom_rol,
+                    CASE WHEN us.estado = true THEN 'Activo' ELSE 'Inactivo' END as estado
                 FROM usuarios us
                 INNER JOIN roles rol ON us.id_rol = rol.id_rol";
         $rows = $this->get_all($sql) ?? [];
@@ -45,6 +47,7 @@ class usuarioModel extends \Core {
                     us.usuario,
                     us.contrasenia,
                     us.fecha_creacion,
+                    us.ult_modificacion,
                     us.id_rol,
                     rol.nom_rol
                 FROM usuarios us
@@ -66,6 +69,52 @@ class usuarioModel extends \Core {
             'success' => false,
             'message' => 'Usuario no encontrado',
             'datos' => null,
+        ];
+    }
+    public function createUser(array $data): array {
+        $pdo = $this->conexion->getConexion();
+        if (!$pdo) {
+            return [ 'success' => false, 'message' => 'Sin conexión a la BD' ];
+        }
+        $nombres = $data['nombres'] ?? '';
+        $apellidos = $data['apellidos'] ?? '';
+        $usuario = $data['usuario'] ?? '';
+        $contrasenia = $data['contrasenia'] ?? '';
+        $contraseniaEncriptada = password_hash($contrasenia, PASSWORD_DEFAULT);
+        $id_rol = (int)($data['id_rol'] ?? 0);
+
+        // Validar duplicado de nombre de usuario
+        $checkSql = "SELECT id_usuario FROM usuarios WHERE usuario = ? LIMIT 1";
+        $stmtCheck = $pdo->prepare($checkSql);
+        $stmtCheck->execute([$usuario]);
+        if ($stmtCheck->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con ese nombre de usuario',
+                'filas_afectadas' => 0
+            ];
+        }
+
+        // Validar duplicado por nombres + apellidos
+        $checkNombreSql = "SELECT id_usuario FROM usuarios WHERE LOWER(TRIM(nombres)) = LOWER(TRIM(?)) AND LOWER(TRIM(apellidos)) = LOWER(TRIM(?)) LIMIT 1";
+        $stmtNombre = $pdo->prepare($checkNombreSql);
+        $stmtNombre->execute([$nombres, $apellidos]);
+        if ($stmtNombre->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Ya existe un usuario con ese nombre y apellidos',
+                'filas_afectadas' => 0
+            ];
+        }
+
+        $sql = "INSERT INTO usuarios (nombres, apellidos, usuario, contrasenia, id_rol, fecha_creacion) VALUES (?, ?, ?, ?, ?, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nombres, $apellidos, $usuario, $contraseniaEncriptada, $id_rol]);
+        $id = $pdo->lastInsertId();
+        return [
+            'success' => true,
+            'message' => 'Usuario ' . $usuario . ' creado correctamente',
+            'filas_afectadas' => $this->get_filas_afectadas(),
         ];
     }
 
@@ -110,16 +159,23 @@ class usuarioModel extends \Core {
         $nombresQuoted = $pdo->quote($nombres);
         $apellidosQuoted = $pdo->quote($apellidos);
         $usuarioQuoted = $pdo->quote($usuario);
-        $contrasenia = $pdo->quote($data['contrasenia'] ?? '');
         $id_rol = (int)($data['id_rol'] ?? 0);
 
-        $sql = "UPDATE usuarios SET 
-                    nombres = $nombresQuoted,
-                    apellidos = $apellidosQuoted,
-                    usuario = $usuarioQuoted,
-                    contrasenia = $contrasenia,
-                    ult_modificacion = NOW(),
-                    id_rol = $id_rol
+        // Construir SET dinámicamente para no limpiar contraseña si viene vacía
+        $setParts = [
+            "nombres = $nombresQuoted",
+            "apellidos = $apellidosQuoted",
+            "usuario = $usuarioQuoted",
+        ];
+        $hasPassword = array_key_exists('contrasenia', $data) && trim((string)$data['contrasenia']) !== '';
+        if ($hasPassword) {
+            $contraseniaQuoted = $pdo->quote($data['contrasenia']);
+            $setParts[] = "contrasenia = $contraseniaQuoted";
+        }
+        $setParts[] = "ult_modificacion = NOW()";
+        $setParts[] = "id_rol = $id_rol";
+
+        $sql = "UPDATE usuarios SET \n                    " . implode(",\n                    ", $setParts) . "
                 WHERE id_usuario = $id";
 
         $ok = $this->ejecutar($sql);
@@ -211,5 +267,17 @@ class usuarioModel extends \Core {
                 'error' => $e->getMessage(),
             ];
         }
-    }    
+    } 
+    
+    public function roles(): ?array {
+        $sql = "SELECT id_rol, nom_rol FROM roles";
+        $rows = $this->get_all($sql) ?? [];
+        $total = count($rows);
+        return [
+            'success' => true,
+            'message' => $total > 0 ? ('Se obtuvieron ' . $total . ' roles') : 'No hay roles',
+            'datos' => $rows,
+            'total' => $total,
+        ];
+    }
 }

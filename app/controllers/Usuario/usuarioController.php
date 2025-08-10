@@ -29,6 +29,15 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit;
+            
+            // Acción: crear_usuario -> Crea un nuevo usuario
+            case 'crear_usuario':
+                    $data = $this->createUser($request);
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json; charset=utf-8');
+                    }
+                    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit;
                     
             // Acción: actualizar_usuario -> Actualiza un usuario por id
             case 'actualizar_usuario':
@@ -60,6 +69,15 @@ class usuarioController extends usuarioModel {
                     }
                     echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
                     exit; 
+                    
+            // Acción: roles -> Obtiene todos los roles
+            case 'roles':
+                    $data = $this->roles();
+                    if (!headers_sent()) {
+                        header('Content-Type: application/json; charset=utf-8');
+                    }
+                    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                    exit;
                     
             // Acción: default -> Acción no válida
             default:

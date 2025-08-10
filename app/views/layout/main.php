@@ -5,7 +5,7 @@ $user = [
     'nombres' => $_SESSION['nombres'] ?? '',
     'apellidos' => $_SESSION['apellidos'] ?? '',
     'usuario' => $_SESSION['usuario'] ?? '',
-    'rol' => $_SESSION['rol'] ?? '',
+    'id_rol' => $_SESSION['id_rol'] ?? '',
 ];
 ?>
 
@@ -45,21 +45,13 @@ $user = [
         <i class="fa fa-home mr-3 text-slate-400 group-hover:text-white"></i>
         Inicio
       </a>
-      <a href="<?php echo APP_URL; ?>?views=productos" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
-        <i class="fa fa-box mr-3 text-slate-400 group-hover:text-white"></i>
-        Productos
-      </a>
       <?php if ($isLogged): ?>
-        <?php if (($_SESSION['rol'] ?? '') == '2'): ?>
+        <?php if (($_SESSION['id_rol'] ?? '') == '2'): ?>
           <a href="<?php echo APP_URL; ?>?views=usuarios" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
             <i class="fa fa-users mr-3 text-slate-400 group-hover:text-white"></i>
             Usuarios
           </a>
         <?php endif; ?>
-        <a href="<?php echo APP_URL; ?>?views=ventas" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
-          <i class="fa fa-shopping-cart mr-3 text-slate-400 group-hover:text-white"></i>
-          Ventas
-        </a>
       <?php endif; ?>
     </nav>
     

@@ -35,11 +35,14 @@ class loginController extends loginModel
         if ($resp['success']) {
             // Asegurar sesión segura
             if (session_status() === PHP_SESSION_ACTIVE) { session_regenerate_id(true); }
-            $_SESSION['id_usuario'] = $resp['user']['id_usuario'] ?? null;
-            $_SESSION['usuario']    = $resp['user']['usuario'] ?? null;
-            $_SESSION['nombres']    = $resp['user']['nombres'] ?? null;
-            $_SESSION['apellidos']  = $resp['user']['apellidos'] ?? null;
-            $_SESSION['rol']        = $resp['user']['rol'] ?? null;
+            $user = $resp['user'] ?? [];
+            $_SESSION['id_usuario'] = $user['id_usuario'] ?? null;
+            $_SESSION['usuario']    = $user['usuario'] ?? null;
+            $_SESSION['nombres']    = $user['nombres'] ?? null;
+            $_SESSION['apellidos']  = $user['apellidos'] ?? null;
+            // Guardar id_rol de forma consistente. Mantener 'rol' por compatibilidad.
+            $_SESSION['id_rol']     = $user['id_rol'] ?? ($user['rol'] ?? null);
+            $_SESSION['rol']        = $user['rol'] ?? ($_SESSION['id_rol'] ?? null);
         }
         return $resp;
     }
@@ -75,6 +78,7 @@ class loginController extends loginModel
                 'usuario'    => $_SESSION['usuario'] ?? null,
                 'nombres'    => $_SESSION['nombres'] ?? null,
                 'apellidos'  => $_SESSION['apellidos'] ?? null,
+                'id_rol'     => $_SESSION['id_rol'] ?? null,
                 'rol'        => $_SESSION['rol'] ?? null,
             ] : null
         ];
