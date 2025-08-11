@@ -1,0 +1,7 @@
+{
+  "name": "ManriqueRecinos/TiendaClaudia",
+  "description": "Inventario Tienda Claudia",
+  "require": {
+    "php": ">=8.1"
+  }
+}
