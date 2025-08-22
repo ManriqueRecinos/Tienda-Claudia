@@ -7,6 +7,7 @@ class loginModel extends \Core
     public function login(string $usuario, string $contrasenia): array
     {
         $usuario = trim($usuario);
+        $contrasenia = trim($contrasenia);
         if ($usuario === '' || $contrasenia === '') {
             return ['success' => false, 'message' => 'Usuario y contraseña son requeridos', 'user' => null];
         }

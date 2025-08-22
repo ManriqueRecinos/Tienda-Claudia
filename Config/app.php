@@ -1,5 +1,5 @@
 <?php
-const APP_URL = "http://localhost/TiendaClaudia";
+const APP_URL = "http://localhost/Tienda-Claudia";
 const APP_NAME = "Tienda Claudia";
 const APP_SESSION_NAME = "SESSION";
 

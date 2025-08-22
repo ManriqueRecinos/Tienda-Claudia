@@ -15,7 +15,7 @@ class Conexion
     private string $username = 'neondb_owner';
     private string $password = 'npg_cWohXu6LCw9b';
     private string $sslmode = 'require';
-    private string $endpoint = 'ep-nameless-sun-adl8xofh'; // Endpoint ID extraído del host
+    private string $endpoint = 'ep-nameless-sun-adl8xofh';
     private int $port = 5432;
     
     private ?PDO $conexion = null;
