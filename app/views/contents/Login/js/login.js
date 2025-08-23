@@ -1,5 +1,9 @@
 'use strict';
-(function($){
+(function(factory){
+  if (typeof window === 'undefined') return;
+  if (typeof window.jQuery === 'undefined') return; // salir silenciosamente si no hay jQuery
+  factory(window.jQuery);
+})(function($){
   $(function(){
     const $form = $("form[action$='?views=login']");
     if(!$form.length) return;
@@ -47,4 +51,4 @@
       .always(function(){ $btn.prop('disabled', false); });
     });
   });
-})(jQuery);
+});

@@ -183,3 +183,5 @@
       <p class="text-gray-600">Inicia sesión para ver y gestionar usuarios del sistema.</p>
     <?php endif; ?>
   </div> 
+
+  <script src="<?php echo APP_URL; ?>/app/views/contents/Usuarios/js/usuarios.js"></script>

@@ -4,7 +4,7 @@
 
 require_once __DIR__ . '/../../Config/app.php';
 require_once __DIR__ . '/../../autoload.php';
-require_once __DIR__ . '/../../app/views/inc/session_start.php';
+require_once __DIR__ . '/../views/inc/session_start.php';
 require_once __DIR__ . '/../../Config/Conexion.php';
 require_once __DIR__ . '/../../Config/Core.php';
 

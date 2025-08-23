@@ -1,6 +1,9 @@
 'use strict';
-
-(function ($) {
+(function(factory){
+  if (typeof window === 'undefined') return;
+  if (typeof window.jQuery === 'undefined') return; // salir silenciosamente si no hay jQuery
+  factory(window.jQuery);
+})(function ($) {
   // Esperar a que el DOM esté listo
   $(function () {
     // (Login handler movido a public/assets/js/login.js)
@@ -48,4 +51,4 @@
         .always(function () { $btn.prop('disabled', false); });
     });
   });
-})(jQuery);
+});

@@ -25,6 +25,9 @@
 <!-- Auth (login/register) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/auth.js"></script>
 
+<!-- Login page specific script (safe to load globally; depends on jQuery) -->
+<script src="<?php echo APP_URL; ?>/app/views/contents/Login/js/login.js"></script>
+
 <!-- Sidebar responsive JS -->
 <script src="<?php echo APP_URL; ?>/app/views/contents/sidebar.js"></script>
 
@@ -39,28 +42,3 @@
 
 <!-- Font Awesome JS local no requerido: removido (usamos CDN CSS en headers) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/all.min.js"></script>
-
-<!-- Redirigir a inicio en recarga de página -->
-<script>
-  (function(){
-    try {
-      var navType = 'navigate';
-      var entries = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation') : null;
-      if (entries && entries[0] && entries[0].type){
-        navType = entries[0].type; // 'reload' | 'navigate' | 'back_forward'
-      } else if (window.performance && performance.navigation) {
-        // legacy
-        navType = (performance.navigation.type === 1) ? 'reload' : 'navigate';
-      }
-      if (navType === 'reload'){
-        var url = new URL(window.location.href);
-        var views = url.searchParams.get('views');
-        var isHome = !views || views === 'index';
-        if (!isHome){
-          // ir a inicio sin parámetros
-          window.location.replace('<?php echo APP_URL; ?>/');
-        }
-      }
-    } catch(e) { /* noop */ }
-  })();
-  </script>
