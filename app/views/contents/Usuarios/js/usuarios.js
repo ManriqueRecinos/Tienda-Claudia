@@ -10,6 +10,8 @@ if (typeof ROLES_CACHE === 'undefined') { var ROLES_CACHE = null; } // array de 
 if (typeof USER_CACHE === 'undefined') { var USER_CACHE = {}; } // { [id_usuario]: usuarioDetallado }
 
 $(document).ready(function(){
+    // Limpieza defensiva: si quedó algún overlay de carga, removerlo para no bloquear clics
+    $('.usuarios-loading').remove();
     // Inicializar selector de página si existe
     const $pageSize = $('#page-size');
     if ($pageSize.length){
@@ -42,6 +44,23 @@ function cargarRolesEnSelect(selectedId, fallbackName){
         $sel.empty().append('<option value="">Error al cargar roles</option>').prop('disabled', true);
         toastr.error('No se pudieron cargar los roles');
     });
+
+// Limpieza global invocable desde la navegación SPA para evitar estado residual
+window.usuariosCleanup = function(){
+    try { localStorage.removeItem('usuarios.selectedId'); } catch(e) {}
+    if (typeof SELECTED_ID !== 'undefined') SELECTED_ID = null;
+    if (typeof USU_ROWS !== 'undefined') USU_ROWS = [];
+    if (typeof USER_CACHE !== 'undefined') USER_CACHE = {};
+    if (typeof ROLES_CACHE !== 'undefined') ROLES_CACHE = null;
+    // Limpiar resaltado en UI si la tabla existe actualmente
+    const $rows = $('#tabla-usuarios tbody tr.row-user');
+    if ($rows.length){
+        $rows.removeClass('row-selected bg-emerald-100 border-l-4 border-emerald-500 bg-blue-100 border-l-8 border-blue-500');
+        $rows.find('td').removeClass('font-semibold text-blue-900');
+    }
+    // Quitar overlays de carga
+    $('.usuarios-loading').remove();
+};
 }
 
 function llenarSelectRoles($sel, rows, selectedId, fallbackName){
@@ -86,12 +105,18 @@ function abrirModalUsuario(u){
     const idRol = (u.id_rol !== undefined && u.id_rol !== null) ? String(u.id_rol) : '';
     const nomRol = u.nom_rol || u.rol || '';
     cargarRolesEnSelect(idRol, nomRol);
-    // Mostrar modal
+    // Mostrar modal y enfocar primer campo
     $('#modal-usuario').removeClass('hidden');
+    setTimeout(function(){ $('#form-usuario-username').trigger('focus'); }, 50);
 }
 
 function cerrarModalUsuario(){
     $('#modal-usuario').addClass('hidden');
+}
+
+// Cerrar modal: Nuevo Usuario
+function cerrarModalNuevoUsuario(){
+    $('#modal-nuevo-usuario').addClass('hidden');
 }
 
 function notificarDesdeRespuesta(resp, fallback){
@@ -160,15 +185,18 @@ function obtenerNombreRolPorId(idRol){
         renderizarUsuarios();
     });
 
+    // Evitar duplicidad de handlers si el script se carga más de una vez (SPA)
+    $(document).off('click', '#tabla-usuarios tbody tr.row-user');
     // Selección de filas
     $(document).on('click', '#tabla-usuarios tbody tr.row-user', function(){
         const id = $(this).data('id');
-        if (SELECTED_ID === id){
+        // Normalizar tipos para comparar correctamente
+        if (String(SELECTED_ID) === String(id)){
             // Toggle off
             SELECTED_ID = null;
             console.log('Selección eliminada.');
         } else {
-            SELECTED_ID = id;
+            SELECTED_ID = String(id);
             const u = buscarUsuarioPorId(SELECTED_ID);
             if (u){
                 console.log('Fila seleccionada:', { id: SELECTED_ID, usuario: u });
@@ -176,10 +204,18 @@ function obtenerNombreRolPorId(idRol){
                 console.log('Fila seleccionada:', { id: SELECTED_ID });
             }
         }
+        // Persistir selección en localStorage
+        if (SELECTED_ID){
+            try { localStorage.setItem('usuarios.selectedId', SELECTED_ID); } catch(e) {}
+        } else {
+            try { localStorage.removeItem('usuarios.selectedId'); } catch(e) {}
+        }
         resaltarSeleccion();
         actualizarBotonesAccion();
     });
 
+    // Evitar duplicidad de handlers para botones de acción
+    $(document).off('click', '#btn-editar, #btn-estado, #btn-eliminar');
     // Acción de botones cuando no hay selección
     $(document).on('click', '#btn-editar, #btn-estado, #btn-eliminar', function(e){
         const $btn = $(this);
@@ -197,6 +233,12 @@ function obtenerNombreRolPorId(idRol){
         }
         // Si hay selección, aquí continuarían las acciones reales
         return true;
+    });
+
+    // Abrir modal: Nuevo Usuario
+    $(document).on('click', '#btn-nuevo', function(e){
+        e.preventDefault();
+        abrirModalNuevoUsuario();
     });
 
     // Abrir modal de edición con cache-first y refresh en background
@@ -397,70 +439,84 @@ function obtenerNombreRolPorId(idRol){
         });
     });
 
-    // -----------------------------
-    // Modal: Nuevo Usuario
-    // -----------------------------
-    function cargarRolesEnSelectNuevo(){
-        const $sel = $('#new-usuario-rol');
-        if (!$sel.length) return;
-        if (Array.isArray(ROLES_CACHE)){
-            llenarSelectRoles($sel, ROLES_CACHE);
-            return;
-        }
-        $sel.prop('disabled', true).empty().append('<option value="">Cargando roles...</option>');
-        $.ajax({
-            url: APP_URL + '/app/controllers/Usuario/usuarioController.php',
-            type: 'POST',
-            dataType: 'json',
-            data: { action: 'roles' }
-        }).done(function(resp){
-            const ok = !!(resp && (resp.success === true || resp.success === 1));
-            ROLES_CACHE = ok ? (resp.datos || resp.data || []) : [];
-            llenarSelectRoles($sel, ROLES_CACHE);
-        }).fail(function(){
-            $sel.empty().append('<option value="">Error al cargar roles</option>').prop('disabled', true);
-            toastr.error('No se pudieron cargar los roles');
-        });
-    }
-
-    function abrirModalNuevoUsuario(){
-        $('#new-usuario-username').val('');
-        $('#new-usuario-nombres').val('');
-        $('#new-usuario-apellidos').val('');
-        const $pass = $('#new-usuario-pass');
-        if ($pass.length){
-            $pass.val('');
-            $pass.attr('type', 'password');
-            $('#toggle-pass-icon-new').removeClass('fa-eye').addClass('fa-eye-slash');
-        }
-        cargarRolesEnSelectNuevo();
-        $('#modal-nuevo-usuario').removeClass('hidden');
-    }
-
-    function cerrarModalNuevoUsuario(){
-        $('#modal-nuevo-usuario').addClass('hidden');
-    }
-
-    // Abrir desde botón de toolbar existente #btn-nuevo
-    $(document).on('click', '#btn-nuevo', function(){
-        abrirModalNuevoUsuario();
-    });
-
-    // Cerrar modal nuevo usuario
+    // Cerrar modal: Nuevo Usuario (botones)
     $(document).on('click', '#modal-nuevo-close, #modal-nuevo-cancel', function(){
         cerrarModalNuevoUsuario();
     });
 
-    // Toggle visibilidad contraseña (nuevo)
-    $(document).on('click', '#toggle-pass-new', function(){
-        const $pass = $('#new-usuario-pass');
-        if (!$pass.length) return;
-        const isPassword = $pass.attr('type') === 'password';
-        $pass.attr('type', isPassword ? 'text' : 'password');
-        const $icon = $('#toggle-pass-icon-new');
-        if (isPassword){ $icon.removeClass('fa-eye-slash').addClass('fa-eye'); }
-        else { $icon.removeClass('fa-eye').addClass('fa-eye-slash'); }
+    // Deshabilitar cierre por click fuera (ambos modales)
+    $(document).on('click', '#modal-usuario, #modal-nuevo-usuario', function(e){
+        const $panel = $(this).find('.modal-panel');
+        // Si el click es fuera del panel, NO cerrar
+        if (!$panel.is(e.target) && $panel.has(e.target).length === 0){
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
     });
+
+    // Deshabilitar cierre con ESC (ambos modales)
+    $(document).on('keydown', function(e){
+        if (e.key === 'Escape'){
+            const anyModalOpen = !$('#modal-usuario').hasClass('hidden') || !$('#modal-nuevo-usuario').hasClass('hidden');
+            if (anyModalOpen){
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }
+    });
+
+// -----------------------------
+// Modal: Nuevo Usuario
+// -----------------------------
+function cargarRolesEnSelectNuevo(){
+    const $sel = $('#new-usuario-rol');
+    if (!$sel.length) return;
+    if (Array.isArray(ROLES_CACHE)){
+        llenarSelectRoles($sel, ROLES_CACHE);
+        return;
+    }
+    $sel.prop('disabled', true).empty().append('<option value="">Cargando roles...</option>');
+    $.ajax({
+        url: APP_URL + '/app/controllers/Usuario/usuarioController.php',
+        type: 'POST',
+        dataType: 'json',
+        data: { action: 'roles' }
+    }).done(function(resp){
+        const ok = !!(resp && (resp.success === true || resp.success === 1));
+        ROLES_CACHE = ok ? (resp.datos || resp.data || []) : [];
+        llenarSelectRoles($sel, ROLES_CACHE);
+    }).fail(function(){
+        $sel.empty().append('<option value="">Error al cargar roles</option>').prop('disabled', true);
+        toastr.error('No se pudieron cargar los roles');
+    });
+}
+
+function abrirModalNuevoUsuario(){
+    $('#new-usuario-username').val('');
+    $('#new-usuario-nombres').val('');
+    $('#new-usuario-apellidos').val('');
+    const $pass = $('#new-usuario-pass');
+    if ($pass.length){
+        $pass.val('');
+        $pass.attr('type', 'password');
+        $('#toggle-pass-icon-new').removeClass('fa-eye').addClass('fa-eye-slash');
+    }
+    cargarRolesEnSelectNuevo();
+    $('#modal-nuevo-usuario').removeClass('hidden');
+    setTimeout(function(){ $('#new-usuario-username').trigger('focus'); }, 50);
+}
+// Toggle visibilidad contraseña (Nuevo Usuario)
+$(document).on('click', '#toggle-pass-new', function(){
+    const $pass = $('#new-usuario-pass');
+    if (!$pass.length) return;
+    const isPassword = $pass.attr('type') === 'password';
+    $pass.attr('type', isPassword ? 'text' : 'password');
+    const $icon = $('#toggle-pass-icon-new');
+    if (isPassword){ $icon.removeClass('fa-eye-slash').addClass('fa-eye'); }
+    else { $icon.removeClass('fa-eye').addClass('fa-eye-slash'); }
+});
 
     // Enviar formulario de creación
     $(document).on('submit', '#form-nuevo-usuario', function(e){
@@ -495,6 +551,12 @@ function obtenerNombreRolPorId(idRol){
     // Construir la tabla y UI (totales/paginador) incluso sin datos iniciales
     renderizarUsuarios();
     obtener_usuarios();
+    // Ajuste inicial y diferido por si cambian tamaños de fuentes/estilos
+    ajustarAlturaTablaUsuarios();
+    setTimeout(ajustarAlturaTablaUsuarios, 50);
+    setTimeout(ajustarAlturaTablaUsuarios, 250);
+    // Recalcular en resize
+    $(window).on('resize', debounce(ajustarAlturaTablaUsuarios, 100));
 });
 
 function resaltarSeleccion(){
@@ -509,6 +571,47 @@ function resaltarSeleccion(){
         $sel.addClass('row-selected bg-blue-100 border-l-8 border-blue-500');
         $sel.find('td').addClass('font-semibold text-blue-900');
     }
+}
+
+// Ajusta dinámicamente la altura del contenedor con overflow para la tabla de usuarios
+function ajustarAlturaTablaUsuarios(){
+    const $table = $('#tabla-usuarios');
+    if (!$table.length) return;
+    const $scroll = $table.closest('.overflow-auto');
+    if (!$scroll.length) return;
+    const $card = $('#usuarios-card');
+    const $toolbarBottom = $('.usuarios-toolbar-bottom');
+
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const scrollTop = $scroll.offset() ? $scroll.offset().top : ($card.offset() ? $card.offset().top : 0);
+    const toolbarH = $toolbarBottom.length ? $toolbarBottom.outerHeight(true) : 0;
+    // margen inferior de seguridad ampliado para evitar overflow por paddings/bordes
+    const margin = 32;
+
+    let available = Math.floor(vh - scrollTop - toolbarH - margin);
+    if (!isFinite(available)) return;
+    available = Math.max(240, available); // nunca menos de 240px
+
+    // Fijar altura para que el scroll quede dentro del contenedor y no en la página
+    $scroll.css({ height: available + 'px', maxHeight: available + 'px', overflowY: 'auto', overflowX: 'hidden' });
+
+    // Comprobación extra: si aún así el documento desborda, reduce ligeramente
+    const doc = document.documentElement;
+    const overflow = (doc.scrollHeight - vh);
+    if (overflow > 0){
+        const newAvail = Math.max(200, available - overflow - 1);
+        $scroll.css({ height: newAvail + 'px', maxHeight: newAvail + 'px' });
+    }
+}
+
+// Pequeño util para no recalcular en cada resize
+function debounce(fn, wait){
+    let t;
+    return function(){
+        const ctx = this, args = arguments;
+        clearTimeout(t);
+        t = setTimeout(function(){ fn.apply(ctx, args); }, wait || 100);
+    };
 }
 
 function actualizarBotonesAccion(){
@@ -566,6 +669,11 @@ function obtener_usuarios(){
         if(resp && (resp.success || resp.success === true)){
             USU_ROWS = resp.datos || resp.data || [];
             CURRENT_PAGE = 1;
+            // Restaurar selección si existe en localStorage
+            try {
+                const sid = localStorage.getItem('usuarios.selectedId');
+                SELECTED_ID = sid && sid !== '' ? String(sid) : null;
+            } catch(e) { SELECTED_ID = null; }
             renderizarUsuarios();
             ocultarCargaTabla();
         } else {
@@ -595,7 +703,7 @@ function renderizarTabla(usuarios){
     }
 
     usuarios.forEach(function(us, idx){
-        const id = escapar(us.id_usuario);
+        const id = us.id_usuario; // mantener tipo original para data-id
         const usuario = escapar(us.usuario);
         const nombreMatch = escapar(((us.nombres||'') + ' ' + (us.apellidos||'')).trim());
         const nomRol = escapar(us.nom_rol || us.rol || '');
@@ -607,7 +715,7 @@ function renderizarTabla(usuarios){
         const evenClass = (idx % 2 === 1) ? 'bg-gray-50' : '';
         const selectedClass = (String(SELECTED_ID) === String(id)) ? 'row-selected bg-blue-100 border-l-8 border-blue-500' : '';
         const tr = `
-            <tr class="row-user ${evenClass} ${selectedClass} cursor-pointer hover:bg-blue-50" data-id="${id}">
+            <tr class="row-user ${evenClass} ${selectedClass} cursor-pointer hover:bg-blue-50" data-id="${String(id)}">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${usuario}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${nombreMatch}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${nomRol}</td>
@@ -744,14 +852,18 @@ function renderizarUsuarios(){
     const slice = filtered.slice(startIdx, endIdx);
 
     renderizarTabla(slice);
+    // Ajustar altura disponible del contenedor scroll de la tabla
+    ajustarAlturaTablaUsuarios();
 
     if ($total.length) $total.text(`Mostrando ${startIdx + 1}–${endIdx} de ${total} usuarios`);
     if ($pager.length) construirPaginador($pager, totalPages, CURRENT_PAGE);
     actualizarIconosOrden();
 
-    // Mantener selección si el id sigue visible en esta página; si no, limpiar visual y botones
-    if (!filtered.some(u => String(u.id_usuario) === String(SELECTED_ID))){
+    // Mantener selección si el id sigue en datos filtrados; si no, limpiar y sincronizar storage
+    // Evitar limpiar durante render inicial sin datos (p.ej., antes de que llegue el AJAX)
+    if (filtered.length > 0 && SELECTED_ID != null && !filtered.some(u => String(u.id_usuario) === String(SELECTED_ID))){
         SELECTED_ID = null;
+        try { localStorage.removeItem('usuarios.selectedId'); } catch(e) {}
     }
     actualizarBotonesAccion();
 }

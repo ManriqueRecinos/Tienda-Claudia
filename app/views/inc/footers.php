@@ -3,15 +3,7 @@
 
 <script>window.APP_URL = '<?php echo APP_URL; ?>';</script>
 
-<!-- JS por vista (después de jQuery) -->
-<?php $view = $_GET['views'] ?? ''; ?>
-<?php if ($view === 'login'): ?>
-  <script src="<?php echo APP_URL; ?>/app/views/contents/Login/js/login.js"></script>
-<?php elseif ($view === 'register'): ?>
-  <script src="<?php echo APP_URL; ?>/app/views/contents/Register/js/register.js"></script>
-<?php elseif ($view === 'usuarios'): ?>
-  <script src="<?php echo APP_URL; ?>/app/views/contents/Usuarios/js/usuarios.js"></script>
-<?php endif; ?>
+<!-- Nota: Cada vista debe incluir sus propios scripts específicos. -->
 
 <!-- SweetAlert -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/sweetalert2.min.js"></script>
@@ -25,7 +17,7 @@
     positionClass: 'toast-top-right',
     timeOut: 1500
   });
-  </script>
+</script>
 
 <!-- AJAX util (si aplica) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/ajax.js"></script>
@@ -48,3 +40,27 @@
 <!-- Font Awesome JS local no requerido: removido (usamos CDN CSS en headers) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/all.min.js"></script>
 
+<!-- Redirigir a inicio en recarga de página -->
+<script>
+  (function(){
+    try {
+      var navType = 'navigate';
+      var entries = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation') : null;
+      if (entries && entries[0] && entries[0].type){
+        navType = entries[0].type; // 'reload' | 'navigate' | 'back_forward'
+      } else if (window.performance && performance.navigation) {
+        // legacy
+        navType = (performance.navigation.type === 1) ? 'reload' : 'navigate';
+      }
+      if (navType === 'reload'){
+        var url = new URL(window.location.href);
+        var views = url.searchParams.get('views');
+        var isHome = !views || views === 'index';
+        if (!isHome){
+          // ir a inicio sin parámetros
+          window.location.replace('<?php echo APP_URL; ?>/');
+        }
+      }
+    } catch(e) { /* noop */ }
+  })();
+  </script>

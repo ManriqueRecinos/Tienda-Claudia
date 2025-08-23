@@ -24,7 +24,12 @@
         // Función para cargar vista dinámicamente
         function loadView(view) {
             if (isLoading || view === currentView) return;
-            
+
+            // Si salimos de Usuarios, limpiar su estado para evitar bugs de selección
+            if (currentView === 'usuarios' && typeof window.usuariosCleanup === 'function') {
+                try { window.usuariosCleanup(); } catch (e) {}
+            }
+
             isLoading = true;
             showLoading();
             
