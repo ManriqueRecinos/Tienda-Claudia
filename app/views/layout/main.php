@@ -17,7 +17,7 @@ $user = [
   <aside id="sidebar" class="w-64 fixed md:relative inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:flex md:flex-col shadow-xl" style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);">
     <!-- Header con logo -->
     <div class="h-16 flex items-center justify-center px-4">
-      <span class="text-xl font-bold text-white">TiendaClaudia</span>
+      <span class="text-xl font-bold text-white"><?php echo APP_NAME; ?></span>
     </div>
     
     <!-- Información del usuario (si está logueado) -->
@@ -50,6 +50,14 @@ $user = [
           <a href="<?php echo APP_URL; ?>?views=usuarios" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
             <i class="fa fa-users mr-3 text-slate-400 group-hover:text-white"></i>
             Usuarios
+          </a>
+        <?php endif; ?>
+      <?php endif; ?>
+      <?php if ($isLogged): ?>
+        <?php if (($_SESSION['id_rol'] ?? '') == '2'): ?>
+          <a href="<?php echo APP_URL; ?>?views=productos" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
+            <i class="fa fa-box mr-3 text-slate-400 group-hover:text-white"></i>
+            Productos
           </a>
         <?php endif; ?>
       <?php endif; ?>

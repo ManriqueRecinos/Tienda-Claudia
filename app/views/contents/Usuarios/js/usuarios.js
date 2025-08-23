@@ -1,13 +1,13 @@
-let USU_ROWS = [];
-let CURRENT_PAGE = 1;
-let PAGE_SIZE = 15; // 0 = all
-let SEARCH_QUERY = '';
-let SORT_FIELD = null; // 'nombre' | 'estado'
-let SORT_DIR = 'asc'; // 'asc' | 'desc'
-let SELECTED_ID = null;
+if (typeof USU_ROWS === 'undefined') { var USU_ROWS = []; } else { USU_ROWS = USU_ROWS || []; }
+if (typeof CURRENT_PAGE === 'undefined') { var CURRENT_PAGE = 1; }
+if (typeof PAGE_SIZE === 'undefined') { var PAGE_SIZE = 15; } // 0 = all
+if (typeof SEARCH_QUERY === 'undefined') { var SEARCH_QUERY = ''; }
+if (typeof SORT_FIELD === 'undefined') { var SORT_FIELD = null; } // 'nombre' | 'estado'
+if (typeof SORT_DIR === 'undefined') { var SORT_DIR = 'asc'; } // 'asc' | 'desc'
+if (typeof SELECTED_ID === 'undefined') { var SELECTED_ID = null; }
 // Caches en memoria
-let ROLES_CACHE = null; // array de roles
-const USER_CACHE = {}; // { [id_usuario]: usuarioDetallado }
+if (typeof ROLES_CACHE === 'undefined') { var ROLES_CACHE = null; } // array de roles
+if (typeof USER_CACHE === 'undefined') { var USER_CACHE = {}; } // { [id_usuario]: usuarioDetallado }
 
 $(document).ready(function(){
     // Inicializar selector de página si existe
