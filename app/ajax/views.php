@@ -46,6 +46,7 @@ try {
         'apellidos' => $_SESSION['apellidos'] ?? '',
         'usuario' => $_SESSION['usuario'] ?? '',
         'rol' => $_SESSION['rol'] ?? '',
+        'id_rol' => $_SESSION['id_rol'] ?? ''
     ];
     
     // Capturar el contenido de la vista

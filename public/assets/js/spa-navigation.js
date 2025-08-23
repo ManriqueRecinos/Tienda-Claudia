@@ -5,19 +5,21 @@
         // Variables globales
         let currentView = 'index';
         let isLoading = false;
+        const allowedViews = ['index', 'productos', 'usuarios', 'ventas'];
         
-        // Interceptar clicks en enlaces del sidebar
-        $(document).on('click', 'nav a[href*="?views="]', function(e) {
-            e.preventDefault();
-            
+        // Interceptar clicks en enlaces internos que cambian vistas (SPA)
+        // Solo para vistas soportadas por el cargador SPA.
+        $(document).on('click', 'a[href*="?views="]', function(e) {
             if (isLoading) return;
-            
+
             const href = $(this).attr('href');
-            const viewMatch = href.match(/views=([^&]+)/);
-            
-            if (!viewMatch) return;
-            
+            const viewMatch = href && href.match(/views=([^&]+)/);
+            if (!viewMatch) return; // dejar comportamiento normal
+
             const view = viewMatch[1];
+            if (!allowedViews.includes(view)) return; // p. ej. login/register -> navegación normal
+
+            e.preventDefault();
             loadView(view);
         });
         
@@ -163,3 +165,4 @@
         initCurrentView();
     });
 })(jQuery);
+
