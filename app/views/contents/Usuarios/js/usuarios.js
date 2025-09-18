@@ -975,3 +975,17 @@ const HH = String(d.getHours()).padStart(2,'0');
 const MM = String(d.getMinutes()).padStart(2,'0');
 return `${dd}/${mm}/${yyyy} ${HH}:${MM}`;
 }
+
+// Exponer un inicializador global para la navegación SPA
+// Permite reactivar la vista Usuarios sin volver a cargar el script múltiples veces
+if (typeof window !== 'undefined') {
+  window.cargarUsuarios = function() {
+    try { renderizarUsuarios(); } catch (e) { /* noop */ }
+    try { obtener_usuarios(); } catch (e) { /* noop */ }
+    try {
+      ajustarAlturaTablaUsuarios();
+      setTimeout(ajustarAlturaTablaUsuarios, 50);
+      setTimeout(ajustarAlturaTablaUsuarios, 250);
+    } catch (e) { /* noop */ }
+  };
+}

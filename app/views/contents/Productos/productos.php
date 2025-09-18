@@ -201,7 +201,4 @@
     <?php else: ?>
       <p class="text-gray-600">Inicia sesión para ver y gestionar usuarios del sistema.</p>
     <?php endif; ?>
-  </div> 
-
-  <!-- Scripts específicos de esta vista -->
-  <script src="<?php echo APP_URL; ?>/app/views/contents/Productos/js/productos.js"></script>
+  </div>

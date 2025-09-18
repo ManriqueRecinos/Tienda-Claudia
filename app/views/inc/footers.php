@@ -19,6 +19,15 @@
   });
 </script>
 
+<?php $view = $_GET['views'] ?? ''; ?>
+<?php if ($view === 'usuarios'): ?>
+  <!-- Usuarios view JS (must load after jQuery) -->
+  <script src="<?php echo APP_URL; ?>/app/views/contents/Usuarios/js/usuarios.js"></script>
+<?php elseif ($view === 'productos'): ?>
+  <!-- Productos view JS (must load after jQuery) -->
+  <script src="<?php echo APP_URL; ?>/app/views/contents/Productos/js/productos.js"></script>
+<?php endif; ?>
+
 <!-- AJAX util (si aplica) -->
 <script src="<?php echo APP_URL; ?>/public/assets/js/ajax.js"></script>
 
